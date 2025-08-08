@@ -1,0 +1,28 @@
+clusterNamespace: ""
+clusterName: ""
+kubernetesClusterDomain: cluster.local
+pullmodeSecret:
+  kubeconfig: ""
+sveltosApplierManager:
+  controller:
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      seccompProfile:
+        type: RuntimeDefault
+    image:
+      repository: docker.io/projectsveltos/sveltos-applier
+      digest: sha256:70bd749f6760072e705c000e1b566d0fefc255271b0be3bcc5652bcf5f9ab0dd
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
