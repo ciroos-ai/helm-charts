@@ -3,6 +3,16 @@ entries:
   ciroos:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2025-08-19T16:10:47.076475598Z"
+    description: Ciroos.ai helm chart
+    digest: 2dc2155f94f55d591c5be114c4efd197a2b2117012141048f65952216236a361
+    name: ciroos
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-0.1.3/ciroos-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2025-08-08T10:34:49.766678212Z"
     description: Ciroos.ai helm chart
     digest: 5b80afb6fcc0defffd493ed089d9c2d87461de804bef86636d1e2afabd017bde
@@ -21,4 +31,4 @@ entries:
     urls:
     - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-0.1.1/ciroos-0.1.1.tgz
     version: 0.1.1
-generated: "2025-08-08T10:34:49.766728967Z"
+generated: "2025-08-19T16:10:47.076489715Z"
