@@ -3,6 +3,15 @@ clusterName: ""
 kubernetesClusterDomain: cluster.local
 pullmodeSecret:
   kubeconfig: ""
+
+uninstaller:
+  uninstall:
+    args:
+      - --skip-projectsveltos=false
+    image:
+      repository: registry.ciroos.ai/ciroos/uninstaller
+      tag: 6dbe31455-amd64
+
 sveltosApplierManager:
   controller:
     containerSecurityContext:

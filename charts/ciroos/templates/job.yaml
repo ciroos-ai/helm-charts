@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ciroos-uninstall
+  namespace: default
+  labels:
+  {{- include "ciroos.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-delete
+    helm.sh/hook-delete-policy: hook-succeeded,before-hook-creation
+    "helm.sh/hook-weight": "5"
+spec:
+  ttlSecondsAfterFinished: 240
+  template:
+    spec:
+      containers:
+      - args: {{- toYaml .Values.uninstaller.uninstall.args
+          | nindent 8 }}
+        name: uninstall
+        image: {{ .Values.uninstaller.uninstall.image.repository }}:{{ .Values.uninstaller.uninstall.image.tag }}
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      serviceAccountName: ciroos-uninstaller
+      restartPolicy: OnFailure
+  backoffLimit: 4
