@@ -2,13 +2,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: sveltos-applier-metrics-service
+  namespace: projectsveltos
   labels:
   {{- include "ciroos.labels" . | nindent 4 }}
 spec:
-  ports:
-  - name: https
-    port: 8443
-    protocol: TCP
-    targetPort: 8443
+  type: {{ .Values.sveltosApplierMetricsService.type }}
   selector:
     app.kubernetes.io/name: sveltos-applier
+  ports:
+  {{- .Values.sveltosApplierMetricsService.ports | toYaml | nindent 2 }}

@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ciroos-agent
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sveltos-applier-manager-write-binding
+  namespace: ciroos-agent
+  labels:
+  {{- include "ciroos.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: 'sveltos-applier-manager-write-permission'
+subjects:
+- kind: ServiceAccount
+  name: 'sveltos-applier-manager'
+  namespace: projectsveltos
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sveltos-applier-manager-write-binding
+  namespace: projectsveltos
+  labels:
+  {{- include "ciroos.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: 'sveltos-applier-manager-write-permission'
+subjects:
+- kind: ServiceAccount
+  name: 'sveltos-applier-manager'
+  namespace: projectsveltos

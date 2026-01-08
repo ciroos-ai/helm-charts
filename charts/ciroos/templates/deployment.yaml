@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sveltos-applier-manager
+  namespace: projectsveltos
   labels:
   {{- include "ciroos.labels" . | nindent 4 }}
 spec:
@@ -44,7 +45,8 @@ spec:
               fieldPath: metadata.namespace
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
-        image: {{ .Values.sveltosApplierManager.controller.image.repository }}@{{ .Values.sveltosApplierManager.controller.image.digest }}
+        image: {{ .Values.sveltosApplierManager.controller.image.repository }}:{{ .Values.sveltosApplierManager.controller.image.tag
+          | default .Chart.AppVersion }}
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -53,6 +55,7 @@ spec:
             scheme: HTTP
           initialDelaySeconds: 15
           periodSeconds: 20
+          timeoutSeconds: 3
         name: controller
         ports:
         - containerPort: 8443

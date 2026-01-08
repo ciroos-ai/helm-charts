@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sveltos-applier-manager-read-binding
+  labels:
+  {{- include "ciroos.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'sveltos-applier-manager-read-permission'
+subjects:
+- kind: ServiceAccount
+  name: 'sveltos-applier-manager'
+  namespace: projectsveltos
