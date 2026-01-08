@@ -3,7 +3,6 @@ clusterName: ""
 kubernetesClusterDomain: cluster.local
 pullmodeSecret:
   kubeconfig: ""
-
 uninstaller:
   uninstall:
     args:
@@ -11,7 +10,6 @@ uninstaller:
     image:
       repository: registry.ciroos.ai/ciroos/uninstaller
       tag: 6dbe31455-amd64
-
 sveltosApplierManager:
   controller:
     containerSecurityContext:
@@ -23,7 +21,7 @@ sveltosApplierManager:
         type: RuntimeDefault
     image:
       repository: docker.io/projectsveltos/sveltos-applier
-      digest: sha256:70bd749f6760072e705c000e1b566d0fefc255271b0be3bcc5652bcf5f9ab0dd
+      tag: v1.3.1
     resources:
       limits:
         cpu: 500m
@@ -35,3 +33,13 @@ sveltosApplierManager:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
+  replicas: 1
+  serviceAccount:
+    annotations: {}
+sveltosApplierMetricsService:
+  ports:
+  - name: https
+    port: 8443
+    protocol: TCP
+    targetPort: 8443
+  type: ClusterIP
