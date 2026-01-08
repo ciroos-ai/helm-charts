@@ -12,5 +12,6 @@ pullmodeSecret:
 
 ```
 helm repo add ciroos https://ciroos-ai.github.io/helm-charts
+helm repo update
 helm install ciroos ciroos/ciroos --create-namespace -n projectsveltos  -f /tmp/values.yaml
 ```
