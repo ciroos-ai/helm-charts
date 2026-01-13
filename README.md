@@ -10,7 +10,7 @@ Deploys the Sveltos applier and a Secret containing a Kubeconfig for accessing t
 - Each chart/value pair registers a single cluster
 - Applied directly to the target cluster
 
-### 2. `installer` Chart (Method 2 Equivalent)
+### 2. `installer` Chart
 Deploys a Ciroos Job that connects to the Ciroos control cluster, registers the cluster, and then deploys the Sveltos applier to the local cluster. This chart is the Helm equivalent of **Method 2: Bootstrap YAML (Self-Service Registration)**.
 
 **How it works:**
