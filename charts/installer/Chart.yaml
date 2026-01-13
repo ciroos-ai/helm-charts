@@ -1,0 +1,9 @@
+apiVersion: v2
+name: installer
+description: Bootstrap installer that automatically registers a Kubernetes cluster with Ciroos and deploys the Sveltos applier agent
+
+type: application
+
+version: 0.1.0
+
+appVersion: "0.1.0"

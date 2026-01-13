@@ -1,0 +1,23 @@
+bootstrap:
+  backoffLimit: 4
+  bootstrap:
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+    env:
+      apiUrl: https://qa0.ciroos.ai
+      clusterName: mgianluc-test-installer
+    image:
+      repository: registry.ciroos.ai/ciroos/bootstrap
+      tag: f356cc338-251202095204
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        memory: 128Mi
+  serviceAccount:
+    annotations: {}
+token:
+  secretName: ciroos-token
+  token: ""
