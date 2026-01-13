@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.token.secretName }}
+  labels:
+  {{- include "installer.labels" . | nindent 4 }}
+data:
+  token: {{ required "token.token is required" .Values.token.token | quote
+    }}
+type: Opaque

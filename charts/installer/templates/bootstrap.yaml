@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "installer.fullname" . }}-bootstrap
+  labels:
+  {{- include "installer.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ .Values.bootstrap.backoffLimit }}
+  template:
+    spec:
+      containers:
+      - args:
+        - --v=5
+        - --secret={{ .Values.token.secretName }}
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: API_URL
+          value: {{ quote .Values.bootstrap.bootstrap.env.apiUrl }}
+        - name: CLUSTER_NAME
+          value: {{ quote .Values.bootstrap.bootstrap.env.clusterName }}
+        image: {{ .Values.bootstrap.bootstrap.image.repository }}:{{ .Values.bootstrap.bootstrap.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.bootstrap.bootstrap.imagePullPolicy }}
+        name: bootstrap
+        resources: {{- toYaml .Values.bootstrap.bootstrap.resources | nindent 10
+          }}
+        securityContext: {{- toYaml .Values.bootstrap.bootstrap.containerSecurityContext
+          | nindent 10 }}
+      restartPolicy: Never
+      serviceAccountName: {{ include "installer.fullname" . }}-bootstrap
+  ttlSecondsAfterFinished: 240

@@ -1,9 +1,9 @@
 apiVersion: v2
 name: ciroos
-description: Ciroos.ai helm chart
+description: Deploys Sveltos applier with pre-generated cluster-specific configuration for connecting a registered Kubernetes cluster to Ciroos
 
 type: application
 
-version: 0.2.0
+version: 0.2.1
 
 appVersion: "0.2.0"
