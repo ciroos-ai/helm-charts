@@ -4,10 +4,43 @@ metadata:
   name: {{ include "installer.fullname" . }}-bootstrap
   labels:
   {{- include "installer.labels" . | nindent 4 }}
+   {{- with .Values.bootstrap.labels }}
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+  annotations:
+   {{- with .Values.bootstrap.annotations }}
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
 spec:
   backoffLimit: {{ .Values.bootstrap.backoffLimit }}
   template:
+    metadata:
+      {{- with .Values.bootstrap.labels }}
+      labels:
+          {{- range $key, $value := . }}
+          {{ $key }}: {{ $value | quote }}
+          {{- end }}
+      {{- end }}
+      {{- with .Values.bootstrap.annotations }}
+      annotations:
+          {{- range $key, $value := . }}
+          {{ $key }}: {{ $value | quote }}
+          {{- end }}
+     {{- end }}
     spec:
+      {{- with .Values.bootstrap.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.bootstrap.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - args:
         - --v=5
