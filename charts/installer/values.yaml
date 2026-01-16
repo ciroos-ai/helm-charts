@@ -11,8 +11,8 @@ bootstrap:
         drop:
         - ALL
     env:
-      apiUrl: https://qa0.ciroos.ai
-      clusterName: mgianluc-test-installer
+      apiUrl:
+      clusterName:
     image:
       repository: registry.ciroos.ai/ciroos/bootstrap
       tag: f356cc338-251202095204
