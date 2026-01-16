@@ -4,6 +4,10 @@ kubernetesClusterDomain: cluster.local
 pullmodeSecret:
   kubeconfig: ""
 uninstaller:
+  annotations: {}
+  labels: {}
+  tolerations: []
+  nodeSelector: {}
   uninstall:
     args:
       - --skip-projectsveltos=false
@@ -11,6 +15,10 @@ uninstaller:
       repository: registry.ciroos.ai/ciroos/uninstaller
       tag: 6dbe31455-amd64
 sveltosApplierManager:
+  annotations: {}
+  labels: {}
+  tolerations: []
+  nodeSelector: {}
   controller:
     containerSecurityContext:
       allowPrivilegeEscalation: false

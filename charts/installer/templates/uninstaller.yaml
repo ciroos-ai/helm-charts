@@ -4,7 +4,7 @@ metadata:
   name: ciroos-uninstall
   namespace: default
   labels:
-  {{- include "ciroos.labels" . | nindent 4 }}
+  {{- include "installer.labels" . | nindent 4 }}
    {{- with .Values.uninstaller.labels }}
     {{- range $key, $value := . }}
     {{ $key }}: {{ $value | quote }}

@@ -5,6 +5,17 @@ metadata:
   namespace: projectsveltos
   labels:
   {{- include "ciroos.labels" . | nindent 4 }}
+   {{- with .Values.sveltosApplierManager.labels }}
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+   {{- with .Values.sveltosApplierManager.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
 spec:
   replicas: 1
   selector:
@@ -14,9 +25,27 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: sveltos-applier
+        {{- with .Values.sveltosApplierManager.labels }}
+        {{- range $key, $value := . }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
       annotations:
         kubectl.kubernetes.io/default-container: controller
+        {{- with .Values.sveltosApplierManager.annotations }}
+        {{- range $key, $value := . }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
     spec:
+      {{- with .Values.sveltosApplierManager.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.sveltosApplierManager.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - args:
         - --diagnostics-address=:8443

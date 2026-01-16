@@ -1,4 +1,8 @@
 bootstrap:
+  annotations: {}
+  labels: {}
+  tolerations: []
+  nodeSelector: {}
   backoffLimit: 4
   bootstrap:
     containerSecurityContext:
@@ -21,3 +25,14 @@ bootstrap:
 token:
   secretName: ciroos-token
   token: ""
+uninstaller:
+  annotations: {}
+  labels: {}
+  tolerations: []
+  nodeSelector: {}
+  uninstall:
+    args:
+      - --skip-projectsveltos=false
+    image:
+      repository: registry.ciroos.ai/ciroos/uninstaller
+      tag: 6dbe31455-amd64
