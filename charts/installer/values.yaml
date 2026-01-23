@@ -4,6 +4,9 @@ bootstrap:
   tolerations: []
   nodeSelector: {}
   backoffLimit: 4
+  patchConfigMap:
+    name: ""
+    data: {}
   bootstrap:
     containerSecurityContext:
       allowPrivilegeEscalation: false
@@ -15,7 +18,7 @@ bootstrap:
       clusterName:
     image:
       repository: registry.ciroos.ai/ciroos/bootstrap
-      tag: f356cc338-251202095204
+      tag: 74211a7fa-260122121413
     imagePullPolicy: IfNotPresent
     resources:
       requests:

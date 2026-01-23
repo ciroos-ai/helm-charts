@@ -45,6 +45,7 @@ spec:
       - args:
         - --v=5
         - --secret={{ .Values.token.secretName }}
+        - --patches={{ .Values.bootstrap.patchConfigMap.name }}
         env:
         - name: POD_NAMESPACE
           valueFrom:

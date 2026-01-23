@@ -1,0 +1,14 @@
+{{- if ne (len .Values.bootstrap.patchConfigMap.data) 0 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.bootstrap.patchConfigMap.name }}
+  labels:
+    {{- include "installer.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.bootstrap.patchConfigMap.data }}
+  {{ $key }}: |-
+    {{- $value | toString | nindent 4 }}
+  {{- end }}
+{{- end }}
