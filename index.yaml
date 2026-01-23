@@ -66,6 +66,17 @@ entries:
   installer:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2026-01-23T18:32:51.622639212Z"
+    description: Bootstrap installer that automatically registers a Kubernetes cluster
+      with Ciroos and deploys the Sveltos applier agent
+    digest: 107805efed89fea2a1dc476c1a255185c9508c0831c469df91812943fbf6793d
+    name: installer
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/installer-0.1.3/installer-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2026-01-16T19:02:50.523849478Z"
     description: Bootstrap installer that automatically registers a Kubernetes cluster
       with Ciroos and deploys the Sveltos applier agent
@@ -97,4 +108,4 @@ entries:
     urls:
     - https://github.com/ciroos-ai/helm-charts/releases/download/installer-0.1.0/installer-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-16T19:02:50.523872463Z"
+generated: "2026-01-23T18:32:51.62268089Z"
