@@ -10,6 +10,9 @@ metadata:
     {{- end }}
   {{- end }}
   annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "0"
    {{- with .Values.bootstrap.annotations }}
     {{- range $key, $value := . }}
     {{ $key }}: {{ $value | quote }}

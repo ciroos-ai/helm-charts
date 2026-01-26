@@ -18,7 +18,7 @@ bootstrap:
       clusterName:
     image:
       repository: registry.ciroos.ai/ciroos/bootstrap
-      tag: 74211a7fa-260122121413
+      tag: 3a2ca4cfd-0c9f09279-260126154532
     imagePullPolicy: IfNotPresent
     resources:
       requests:
