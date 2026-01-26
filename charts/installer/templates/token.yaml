@@ -1,13 +1,14 @@
+{{- if .Values.token.token }}
 apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.token.secretName }}
   labels:
-  {{- include "installer.labels" . | nindent 4 }}
+    {{- include "installer.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-5"
 data:
-  token: {{ required "token.token is required" .Values.token.token | quote
-    }}
+  token: {{ .Values.token.token | quote }}
 type: Opaque
+{{- end }}
