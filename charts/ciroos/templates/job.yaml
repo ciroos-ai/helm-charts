@@ -20,7 +20,7 @@ metadata:
     {{- end }}
   {{- end }}
 spec:
-  ttlSecondsAfterFinished: 240
+  ttlSecondsAfterFinished: 60
   template:
     metadata:
       {{- with .Values.uninstaller.labels }}

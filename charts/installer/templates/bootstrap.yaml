@@ -68,4 +68,4 @@ spec:
           | nindent 10 }}
       restartPolicy: Never
       serviceAccountName: {{ include "installer.fullname" . }}-bootstrap
-  ttlSecondsAfterFinished: 240
+  ttlSecondsAfterFinished: 60
