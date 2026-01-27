@@ -130,6 +130,31 @@ token:
 
 ```
 
+#### Token Secret Management   
+
+The bootstrap Job requires a Secret containing the API token. You have two options:
+
+**Option 1**: Helm-managed Secret (Simple) 
+
+```yaml
+token:
+  secretName: ciroos-token
+  token: <base64 encoded API token>
+```
+
+The Helm chart will create the Secret during installation.
+
+**Option 2**: Pre-created Secret (GitOps/Production)
+
+For GitOps workflows, pre-create the Secret externally and leave token.token empty:  
+
+```yaml
+token:
+  secretName: ciroos-token
+  token: ""
+```
+
+ When token.token is empty, the Helm chart will not create the Secret and assumes it already exists in the cluster. This approach keeps sensitive credentials out of Git and follows GitOps best practices.       
 
 ```
 helm repo add ciroos https://ciroos-ai.github.io/helm-charts
