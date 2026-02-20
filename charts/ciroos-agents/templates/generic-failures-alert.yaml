@@ -1,0 +1,11 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: generic-failures-alert
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+  - expression: resource.reason == 'Failed' && !resource.message.matches('(?i).*(health
+      check|readiness|liveness).*')
+    name: failed-reason-excluding-health-checks

@@ -1,0 +1,28 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: ResourceWatcher
+metadata:
+  name: service-watcher
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  alwaysSend: false
+  resources:
+  - dependencyRules:
+    - direction: inbound
+      expression: |
+        [{
+          "kind": "Namespace",
+          "apiVersion": "v1",
+          "name": resource.metadata.namespace,
+          "namespace": ""
+        }]
+      name: namespace
+      type: containment
+    groupVersionKind:
+      group: ""
+      kind: Service
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-services
+    name: services

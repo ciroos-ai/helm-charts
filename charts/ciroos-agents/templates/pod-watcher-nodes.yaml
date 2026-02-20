@@ -1,0 +1,29 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: ResourceWatcher
+metadata:
+  name: pod-watcher-nodes
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  alwaysSend: false
+  resources:
+  - dependencyRules:
+    - direction: outbound
+      expression: |
+        has(resource.spec.nodeName) && resource.spec.nodeName != "" ?
+          [{
+            "kind": "Node",
+            "apiVersion": "v1",
+            "name": resource.spec.nodeName,
+            "namespace": ""
+          }] : []
+      name: node-placement
+      type: scheduling
+    groupVersionKind:
+      group: ""
+      kind: Pod
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-pods
+    name: running-pods

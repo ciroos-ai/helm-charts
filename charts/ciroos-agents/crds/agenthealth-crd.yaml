@@ -1,0 +1,97 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: agenthealths.lib.ciroos.ai
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.18.0
+spec:
+  group: lib.ciroos.ai
+  names:
+    kind: AgentHealth
+    listKind: AgentHealthList
+    plural: agenthealths
+    singular: agenthealth
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: AgentHealth is the Schema for the AgentHealth API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AgentHealthSpec defines the desired state of AgentStatus
+            type: object
+          status:
+            description: AgentHealthStatus defines the observed state of AgentHealthStatus.
+            properties:
+              agentStatuses:
+                items:
+                  description: AgentStatus defines the observed state for a given Ciroos
+                    Agent
+                  properties:
+                    agentName:
+                      description: AgentName identifies the specific Ciroos agent (beacon,
+                        vector, ebpf-topo-coll, etc.)
+                      type: string
+                    errors:
+                      description: Erros represent the latest available agent's errors
+                      items:
+                        description: CiroosAgentErrors represents an error reported
+                          by the agent
+                        properties:
+                          message:
+                            description: Message contains a human readable message with
+                              details about the error
+                            type: string
+                          reportTime:
+                            description: ReportTime is the time the error was reported
+                            format: date-time
+                            type: string
+                        type: object
+                      type: array
+                    health:
+                      description: Health represents the overall health status of the
+                        agent
+                      enum:
+                      - Healthy
+                      - Unhealthy
+                      type: string
+                    healthMessage:
+                      description: HealthMessage is a human readable message with details
+                        about the health
+                      type: string
+                    lastReported:
+                      description: LastReported is the timestamp when the agent last
+                        reported its health
+                      format: date-time
+                      type: string
+                  required:
+                  - agentName
+                  type: object
+                type: array
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status: {}

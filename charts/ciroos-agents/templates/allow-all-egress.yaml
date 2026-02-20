@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-egress
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  egress:
+  - {}
+  podSelector: {}
+  policyTypes:
+  - Egress

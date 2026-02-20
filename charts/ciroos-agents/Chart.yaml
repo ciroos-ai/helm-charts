@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ciroos-agents
+description:  Deploys the Ciroos observability agent into your Kubernetes cluster to provide comprehensive monitoring, event tracking, and network topology analysis.
+
+type: application
+
+version: 0.1.0
+
+appVersion: "0.1.0"

@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  ca.crt: {{ .Values.ciroosCaCrt }}
+  tls.crt: {{ .Values.ciroosTlsCrt }}
+  tls.key: {{ .Values.ciroosTlsKey }}
+kind: Secret
+metadata:
+  name: {{ .Values.clusterName }}-client-cert
+type: kubernetes.io/tls

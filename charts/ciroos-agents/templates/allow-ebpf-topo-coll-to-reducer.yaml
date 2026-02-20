@@ -1,0 +1,22 @@
+{{- if .Values.ebpfTopoColl.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ebpf-topo-coll-to-reducer
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: ebpf-topo-coll
+    ports:
+    - port: 50051
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app: ebpf-topo-reducer
+  policyTypes:
+  - Ingress
+{{- end }}

@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ebpf-topo-reducer-to-vector
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  egress:
+  - ports:
+    - port: 8994
+      protocol: TCP
+    to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/component: Agent
+          app.kubernetes.io/instance: vector
+          app.kubernetes.io/name: vector
+  podSelector:
+    matchLabels:
+      app: ebpf-topo-reducer
+  policyTypes:
+  - Egress

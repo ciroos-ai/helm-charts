@@ -1,0 +1,28 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: ResourceWatcher
+metadata:
+  name: endpoints-to-service
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  resources:
+  - dependencyRules:
+    - direction: inbound
+      expression: |
+        resource.metadata.name != "" ?
+          [{
+            "kind": "Service",
+            "apiVersion": "v1",
+            "name": resource.metadata.name,
+            "namespace": resource.metadata.namespace
+          }] : []
+      name: endpoint-service-explicit
+      type: network
+    groupVersionKind:
+      group: ""
+      kind: Endpoints
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-endpoints
+    name: endpoints-to-service

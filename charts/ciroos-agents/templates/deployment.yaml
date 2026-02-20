@@ -1,0 +1,457 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beacon
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.beacon.replicas }}
+  selector:
+    matchLabels:
+      app: beacon
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: beacon
+      {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: CIROOS_INGRESS_URL
+          valueFrom:
+            configMapKeyRef:
+              key: CIROOS_INGRESS_URL
+              name: ciroos-agent-config
+        - name: CLUSTER_ID
+          valueFrom:
+            configMapKeyRef:
+              key: CLUSTER_ID
+              name: ciroos-agent-config
+        - name: ORG_ID
+          valueFrom:
+            configMapKeyRef:
+              key: ORG_ID
+              name: ciroos-agent-config
+        - name: BEACON_BEACON_ID
+          value: "{{ .Values.clusterNamespace }}:{{ .Values.clusterName }}"
+        - name: BEACON_STARGATE_URL
+          value: wss://{{ .Values.ingressFqdn }}/ws/stargate
+        - name: BEACON_LOG_LEVEL
+          value: info
+        - name: BEACON_TLS__CERT_PATH
+          value: /etc/certs/tls.crt
+        - name: BEACON_TLS__KEY_PATH
+          value: /etc/certs/tls.key
+        - name: BEACON_TLS__CA_PATH
+          value: /etc/certs/ca.crt
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: DEPLOYMENT_NAME
+          value: beacon
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.beacon.beacon.image.repository }}:{{ .Values.beacon.beacon.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.beacon.beacon.imagePullPolicy }}
+        name: beacon
+        resources: {{- toYaml .Values.beacon.beacon.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: /etc/certs
+          name: ciroos-agent-cert
+          readOnly: true
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+      - name: ciroos-agent-cert
+        secret:
+          secretName: {{ .Values.clusterName }}-client-cert
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ebpf-topo-reducer
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ebpfTopoReducer.replicas }}
+  selector:
+    matchLabels:
+      app: ebpf-topo-reducer
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: ebpf-topo-reducer
+      {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: EBPF_TOPOLOGY_REDUCER_LOG_LEVEL
+          value: info
+        - name: EBPF_TOPOLOGY_REDUCER_EBPF_TOPO_TCP_CONNECTIONS_VECTOR_URL
+          value: http://vector-service:8994/k8s/ebpf_topology
+        - name: EBPF_TOPOLOGY_REDUCER_K8S_RESOURCES_VECTOR_URL
+          value: http://vector-service:8996/k8s/resources_metrics
+        - name: EBPF_TOPOLOGY_REDUCER_PUSH_INTERVAL_SECS
+          value: "300"
+        - name: EBPF_TOPOLOGY_REDUCER_INGEST_URI
+          value: https://{{ .Values.ingressFqdn }}
+        - name: EBPF_TOPOLOGY_REDUCER_LB_REFRESH_INTERVAL_SECS
+          value: "600"
+        - name: EBPF_TOPOLOGY_REDUCER_TLS_CERT_PATH
+          value: /etc/certs/tls.crt
+        - name: EBPF_TOPOLOGY_REDUCER_TLS_KEY_PATH
+          value: /etc/certs/tls.key
+        - name: EBPF_TOPOLOGY_REDUCER_TLS_CA_PATH
+          value: /etc/certs/ca.crt
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.ebpfTopoReducer.ebpfTopoReducer.image.repository }}:{{ .Values.ebpfTopoReducer.ebpfTopoReducer.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.ebpfTopoReducer.ebpfTopoReducer.imagePullPolicy }}
+        name: ebpf-topo-reducer
+        resources: {{- toYaml .Values.ebpfTopoReducer.ebpfTopoReducer.resources | nindent
+          10 }}
+        volumeMounts:
+        - mountPath: /etc/certs
+          name: ciroos-agent-cert
+          readOnly: true
+      imagePullSecrets:
+      - name: regcred
+      serviceAccountName: ebpf-topo-reducer
+      volumes:
+      - name: ciroos-agent-cert
+        secret:
+          secretName: {{ .Values.clusterName }}-client-cert
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventrouter-controller
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: eventrouter
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: eventrouter
+      {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+      annotations:
+        kubectl.kubernetes.io/default-container: controller
+    spec:
+      containers:
+      - args:
+        - --v=0
+        - --configuration=eventrouter-gvks
+        - --deploymentName=eventrouter-controller
+        - --discard-managed-fields=true
+        command:
+        - /manager
+        env:
+        - name: TOTAL_MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: "0"
+              resource: limits.memory
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: "0"
+              resource: limits.cpu
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.eventrouterController.controller.image.repository }}:{{ .Values.eventrouterController.controller.image.tag
+          | default .Chart.AppVersion }}
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          timeoutSeconds: 5
+        name: controller
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+        resources: {{- toYaml .Values.eventrouterController.controller.resources | nindent
+          10 }}
+        securityContext: {{- toYaml .Values.eventrouterController.controller.containerSecurityContext
+          | nindent 10 }}
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-volume
+      imagePullSecrets:
+      - name: regcred
+      securityContext: {{- toYaml .Values.eventrouterController.podSecurityContext | nindent
+        8 }}
+      serviceAccountName: eventrouter-controller
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir: {}
+        name: tmp-volume
+---
+{{- if .Values.sourceRepositoryWatcherController.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: source-repository-watcher-controller
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.sourceRepositoryWatcherController.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: source-repository-watcher
+      control-plane: controller
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: source-repository-watcher
+        control-plane: controller
+      {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+      annotations:
+        kubectl.kubernetes.io/default-container: controller
+    spec:
+      containers:
+      - args:
+        - --v=5
+        - --gitops=http://vector-service:8995/k8s/gitops
+        command:
+        - /manager
+        env:
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: "0"
+              resource: limits.memory
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: "0"
+              resource: limits.cpu
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: '{{ .Values.sourceRepositoryWatcherController.controller.image.repository
+          }}:{{ .Values.sourceRepositoryWatcherController.controller.image.tag | default
+          .Chart.AppVersion }}'
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+        name: controller
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources: {{- toYaml .Values.sourceRepositoryWatcherController.controller.resources
+          | nindent 10 }}
+        securityContext: {{- toYaml .Values.sourceRepositoryWatcherController.controller.containerSecurityContext
+          | nindent 10 }}
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-volume
+      imagePullSecrets:
+      - name: regcred
+      securityContext: {{- toYaml .Values.sourceRepositoryWatcherController.podSecurityContext
+        | nindent 8 }}
+      serviceAccountName: source-repository-watcher-controller
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir: {}
+        name: tmp-volume
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8smcp
+  labels:
+    app: k8smcp
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.k8Smcp.replicas }}
+  selector:
+    matchLabels:
+      app: k8smcp
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: k8smcp
+      {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: DEPLOYMENT_NAME
+          value: k8smcp
+        - name: LOG_LEVEL
+          value: INFO
+        - name: KUBECTL_PATH
+          value: /app/bin/kubectl
+        - name: KUBECONFIG_PATH
+          value: /tmp/kubeconfig
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.k8Smcp.k8Smcp.image.repository }}:{{ .Values.k8Smcp.k8Smcp.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.k8Smcp.k8Smcp.imagePullPolicy }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+        name: k8smcp
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources: {{- toYaml .Values.k8Smcp.k8Smcp.resources | nindent 10 }}
+        securityContext: {{- toYaml .Values.k8Smcp.k8Smcp.containerSecurityContext | nindent
+          10 }}
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-volume
+      imagePullSecrets:
+      - name: regcred
+      serviceAccountName: k8smcp-sa
+      volumes:
+      - emptyDir: {}
+        name: tmp-volume
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vector
+  labels:
+    app.kubernetes.io/component: Agent
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.vector.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: Agent
+      app.kubernetes.io/instance: vector
+      app.kubernetes.io/name: vector
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: Agent
+        app.kubernetes.io/instance: vector
+        app.kubernetes.io/name: vector
+        vector.dev/exclude: "true"
+      {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args:
+        - --config-dir
+        - /etc/vector/
+        env:
+        - name: CIROOS_INGRESS_URL
+          valueFrom:
+            configMapKeyRef:
+              key: CIROOS_INGRESS_URL
+              name: ciroos-agent-config
+        - name: VECTOR_LOG
+          value: {{ quote .Values.vector.vector.env.vectorLog }}
+        - name: RUST_BACKTRACE
+          value: {{ quote .Values.vector.vector.env.rustBacktrace }}
+        - name: VECTOR_SELF_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: VECTOR_SELF_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: TENANT_ID
+          valueFrom:
+            configMapKeyRef:
+              key: ORG_ID
+              name: ciroos-agent-config
+        - name: CLUSTER_ID
+          valueFrom:
+            configMapKeyRef:
+              key: CLUSTER_ID
+              name: ciroos-agent-config
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.vector.vector.image.repository }}:{{ .Values.vector.vector.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.vector.vector.imagePullPolicy }}
+        name: vector
+        ports:
+        - containerPort: 9090
+          name: prom-exporter
+          protocol: TCP
+        resources: {{- toYaml .Values.vector.vector.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: /vector-data-dir
+          name: data
+        - mountPath: /etc/vector/
+          name: config
+          readOnly: true
+        - mountPath: /etc/certs
+          name: ciroos-agent-cert
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: regcred
+      serviceAccountName: vector
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - name: config
+        projected:
+          sources:
+          - configMap:
+              name: vector
+      - emptyDir: {}
+        name: data
+      - name: ciroos-agent-cert
+        secret:
+          secretName: {{ .Values.clusterName }}-client-cert

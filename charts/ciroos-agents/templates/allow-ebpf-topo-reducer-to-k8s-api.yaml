@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ebpf-topo-reducer-to-k8s-api
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  egress:
+  - ports:
+    - port: 443
+      protocol: TCP
+    - port: 6443
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app: ebpf-topo-reducer
+  policyTypes:
+  - Egress

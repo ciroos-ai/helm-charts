@@ -1,0 +1,180 @@
+{{- if .Values.otelCollector.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    receivers:
+      kubeletstats:
+        collection_interval: 300s
+        auth_type: "serviceAccount"
+        endpoint: "https://${env:K8S_NODE_IP}:10250"
+        insecure_skip_verify: true
+        metric_groups:
+          - node
+          - pod
+        metrics:
+          #Node metrics (enabled)
+          k8s.node.cpu.utilization:
+              enabled: true
+          k8s.node.filesystem.usage:
+              enabled: true
+          k8s.node.memory.usage:
+              enabled: true
+          k8s.node.network.io:
+              enabled: true
+          #Node metrics (disabled)
+          k8s.node.cpu.time:
+              enabled: false
+          k8s.node.filesystem.available:
+              enabled: false
+          k8s.node.filesystem.capacity:
+              enabled: false
+          k8s.node.memory.available:
+              enabled: false
+          k8s.node.memory.major_page_faults:
+              enabled: false
+          k8s.node.memory.page_faults:
+              enabled: false
+          k8s.node.memory.rss:
+              enabled: false
+          k8s.node.memory.working_set:
+              enabled: false
+          k8s.node.network.errors:
+              enabled: false
+          #CPU Metrics (enabled)
+          k8s.pod.cpu.utilization:
+              enabled: true
+          k8s.pod.filesystem.usage:
+              enabled: true
+          k8s.pod.network.io:
+              enabled: true
+          k8s.pod.memory.usage:
+              enabled: true
+          #CPU Metrics (disabled)
+          k8s.pod.cpu.time:
+              enabled: false
+          k8s.pod.filesystem.available:
+              enabled: false
+          k8s.pod.filesystem.capacity:
+              enabled: false
+          k8s.pod.memory.available:
+              enabled: false
+          k8s.pod.memory.major_page_faults:
+              enabled: false
+          k8s.pod.memory.page_faults:
+              enabled: false
+          k8s.pod.memory.rss:
+              enabled: false
+          k8s.pod.memory.working_set:
+              enabled: false
+          k8s.pod.network.errors:
+              enabled: false
+    processors:
+      resource:
+        attributes:
+          - action: upsert
+            key: k8s.pod.name
+            from_attribute: __meta_kubernetes_pod_name
+          - action: upsert
+            key: k8s.namespace.name
+            from_attribute: __meta_kubernetes_namespace
+          - action: upsert
+            key: k8s.node.name
+            from_attribute: __meta_kubernetes_node_name
+          - action: upsert
+            key: k8s.container.name
+            from_attribute: __meta_kubernetes_container_name
+      k8sattributes:
+        auth_type: "serviceAccount"
+        passthrough: false
+        filter:
+          # only retrieve pods running on the same node as the collector
+          node_from_env_var: KUBE_NODE_NAME
+        extract:
+          # The attributes provided in 'metadata' will be added to associated resources
+          metadata:
+            - k8s.pod.name
+            - k8s.pod.uid
+            - k8s.deployment.name
+            - k8s.deployment.uid
+            - k8s.daemonset.name
+            - k8s.daemonset.uid
+            - k8s.replicaset.name
+            - k8s.replicaset.uid
+            - k8s.namespace.name
+            - k8s.node.name
+            - k8s.node.uid
+          labels:
+           # This label extraction rule takes the value 'app.kubernetes.io/component' label and maps
+           #  it to the 'app.label.component' attribute which will be added to the associated resources
+           #  - tag_name: app.label.component
+           #    key: app.kubernetes.io/component
+           #    from: pod
+        pod_association:
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.uid
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.name
+            - from: resource_attribute
+              name: k8s.namespace.name
+        - sources:
+            - from: resource_attribute
+              name: container.id
+      transform:
+        metric_statements:
+          - context: datapoint
+            statements:
+              - set(attributes["k8s.pod.uid"], resource.attributes["k8s.pod.uid"])
+              - set(attributes["k8s.pod.name"], resource.attributes["k8s.pod.name"])
+              - set(attributes["k8s.namespace.name"], resource.attributes["k8s.namespace.name"])
+              - set(attributes["k8s.namespace.uid"], resource.attributes["k8s.namespace.uid"])
+              - set(attributes["k8s.node.name"], resource.attributes["k8s.node.name"])
+              - set(attributes["k8s.node.uid"], resource.attributes["k8s.node.uid"])
+              - set(attributes["container.id"], resource.attributes["container.id"])
+              - set(attributes["k8s.container.name"], resource.attributes["k8s.container.name"])
+              - set(attributes["container.image.name"], resource.attributes["container.image.name"])
+              - set(attributes["container.image.tag"], resource.attributes["container.image.tag"])
+              - set(attributes["k8s.pod.qos_class"], resource.attributes["k8s.pod.qos_class"])
+              - set(attributes["k8s.deployment.name"], resource.attributes["k8s.deployment.name"])
+              - set(attributes["k8s.deployment.uid"], resource.attributes["k8s.deployment.uid"])
+              - set(attributes["k8s.replicaset.name"], resource.attributes["k8s.replicaset.name"])
+              - set(attributes["k8s.replicaset.uid"], resource.attributes["k8s.replicaset.uid"])
+              - set(attributes["k8s.replicationcontroller.name"], resource.attributes["k8s.replicationcontroller.name"])
+              - set(attributes["k8s.replicationcontroller.uid"], resource.attributes["k8s.replicationcontroller.uid"])
+              - set(attributes["k8s.cronjob.name"], resource.attributes["k8s.cronjob.name"])
+              - set(attributes["k8s.cronjob.uid"], resource.attributes["k8s.cronjob.uid"])
+              - set(attributes["k8s.job.uid"], resource.attributes["k8s.job.uid"])
+              - set(attributes["k8s.daemonset.name"], resource.attributes["k8s.daemonset.name"])
+              - set(attributes["k8s.daemonset.uid"], resource.attributes["k8s.daemonset.uid"])
+              - set(attributes["k8s.statefulset.name"], resource.attributes["k8s.statefulset.name"])
+              - set(attributes["k8s.statefulset.uid"], resource.attributes["k8s.statefulset.uid"])
+              - set(attributes["k8s.container.status.last_terminated_reason"], resource.attributes["k8s.container.status.last_terminated_reason"])
+              - set(attributes["os.description"], resource.attributes["os.description"])
+              - set(attributes["os.type"], resource.attributes["os.type"])
+              - set(attributes["k8s.hpa.uid"], resource.attributes["k8s.hpa.uid"])
+              - set(attributes["k8s.hpa.name"], resource.attributes["k8s.hpa.name"])
+      batch:
+        timeout: 10s
+    exporters:
+      prometheusremotewrite:
+        endpoint: "http://vector-service:9090"
+        tls:
+          insecure: true
+        send_metadata: true
+      debug:
+        verbosity: detailed
+      file:
+        path: "/tmp/otel-collector/fileexporter.txt"
+    service:
+      pipelines:
+        metrics/kubelet:
+          receivers: [kubeletstats]
+          processors: [k8sattributes, transform]
+          exporters: [prometheusremotewrite]
+{{- end }}

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eventrouter-gvks
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+data:
+  alertUrl: {{ .Values.eventrouterGvks.alertUrl | quote }}
+  dependencyEdgeUrl: {{ .Values.eventrouterGvks.dependencyEdgeUrl | quote }}
+  eventUrl: {{ .Values.eventrouterGvks.eventUrl | quote }}
