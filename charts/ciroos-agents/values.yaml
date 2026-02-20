@@ -1,0 +1,171 @@
+clusterNamespace: ""
+clusterName: "cluster-name"
+ingressFqdn: ""
+ciroosIngressUrl: ""
+ciroosDockerconfigjson: ""
+ciroosCaCrt: ""
+ciroosTlsCrt: ""
+ciroosTlsKey: ""
+kind: Secret
+beacon:
+  beacon:
+    image:
+      repository: registry.ciroos.ai/netra/beacon
+      tag: a214159da-585ee609d-260203180435
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 100m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  replicas: 1
+ebpfTopoColl:
+  enabled: true
+  ebpfTopoColl:
+    useSysAdminCap: false
+    env:
+      ebpfTopologyCollectorLogLevel: info
+      ebpfTopologyCollectorReducerAddr: http://ebpf-topo-reducer:50051
+    image:
+      repository: registry.ciroos.ai/netra/ebpf-topo-coll
+      tag: ba5ca1f1c-0e8207332-260209175057
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 64Mi
+ebpfTopoReducer:
+  ebpfTopoReducer:
+    image:
+      repository: registry.ciroos.ai/netra/ebpf-topo-reducer
+      tag: 99b880a83-97510eff9-260207164916
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 64Mi
+  replicas: 1
+  serviceAccount:
+    annotations: {}
+eventrouterController:
+  controller:
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+    image:
+      repository: registry.ciroos.ai/netra/eventrouter-controller
+      tag: 6055ea7c4-f2d3e4b94-260218120039
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount:
+    annotations: {}
+eventrouterGvks:
+  alertUrl: http://vector-service:8993/k8s/alerts
+  dependencyEdgeUrl: http://vector-service:8992/k8s/relationships
+  eventUrl: http://vector-service:8991/v2/k8s/events
+k8Smcp:
+  k8Smcp:
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+    image:
+      repository: registry.ciroos.ai/netra/k8smcp
+      tag: a214159da-65458e0c6-260203180435
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 300m
+        memory: 2Gi
+      requests:
+        cpu: 300m
+        memory: 512Mi
+  replicas: 1
+  type: ClusterIP
+k8SmcpSa:
+  serviceAccount:
+    annotations: {}
+kubernetesClusterDomain: cluster.local
+otelCollector:
+  otelCollector:
+    image:
+      repository: docker.io/otel/opentelemetry-collector-contrib
+      tag: 0.122.0
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 10m
+        memory: 32Mi
+  type: ClusterIP
+  enabled: true
+sourceRepositoryWatcherController:
+  enabled: true
+  controller:
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+    image:
+      repository: registry.ciroos.ai/netra/source-repository-watcher
+      tag: a214159da-4fec08770-260203180435
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  replicas: 1
+  serviceAccount:
+    annotations: {}
+vector:
+  replicas: 1
+  serviceAccount:
+    annotations: {}
+  vector:
+    env:
+      rustBacktrace: full
+      vectorLog: info
+    image:
+      repository: registry.ciroos.ai/netra/vector
+      tag: a214159da-a462e696a-260203180435
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi

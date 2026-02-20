@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  CIROOS_INGRESS_URL: {{ .Values.ciroosIngressUrl }}
+  CLUSTER_ID: {{ .Values.clusterName }}
+  ORG_ID: {{ .Values.clusterNamespace }}
+kind: ConfigMap
+metadata:
+  name: ciroos-agent-config

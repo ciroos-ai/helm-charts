@@ -1,0 +1,117 @@
+{{- if .Values.ebpfTopoColl.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ebpf-topo-coll
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: ebpf-topo-coll
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: ebpf-topo-coll
+      {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: EBPF_TOPOLOGY_COLLECTOR_REDUCER_ADDR
+          value: {{ quote .Values.ebpfTopoColl.ebpfTopoColl.env.ebpfTopologyCollectorReducerAddr
+            }}
+        - name: EBPF_TOPOLOGY_COLLECTOR_LOG_LEVEL
+          value: {{ quote .Values.ebpfTopoColl.ebpfTopoColl.env.ebpfTopologyCollectorLogLevel
+            }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.ebpfTopoColl.ebpfTopoColl.image.repository }}:{{ .Values.ebpfTopoColl.ebpfTopoColl.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.ebpfTopoColl.ebpfTopoColl.imagePullPolicy }}
+        name: ebpf-topo-coll
+        resources: {{- toYaml .Values.ebpfTopoColl.ebpfTopoColl.resources | nindent 10
+          }}
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          capabilities:
+            add:
+              {{- if .Values.ebpfTopoColl.ebpfTopoColl.useSysAdminCap }}
+              - SYS_ADMIN
+              {{- else }}
+              - BPF
+              - PERFMON
+              {{- end }}
+              - NET_ADMIN
+              - SYS_RESOURCE
+            drop:
+              - ALL
+        volumeMounts:
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+      hostPID: true
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+      - hostPath:
+          path: /sys/fs/cgroup
+        name: cgroup
+{{- end }}
+---
+{{- if .Values.otelCollector.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: otel-collector
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: otel-collector
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+      {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: K8S_NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: K8S_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.otelCollector.otelCollector.image.repository }}:{{ .Values.otelCollector.otelCollector.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.otelCollector.otelCollector.imagePullPolicy }}
+        name: otel-collector
+        ports:
+        - containerPort: 8888
+        resources: {{- toYaml .Values.otelCollector.otelCollector.resources | nindent 10
+          }}
+        volumeMounts:
+        - mountPath: /etc/otel/config.yaml
+          name: otel-collector-config-vol
+          subPath: config.yaml
+        - mountPath: /tmp/otel-collector
+          name: local-volume
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+      - configMap:
+          name: otel-collector-config
+        name: otel-collector-config-vol
+      - hostPath:
+          path: /tmp
+          type: DirectoryOrCreate
+        name: local-volume
+{{- end }}

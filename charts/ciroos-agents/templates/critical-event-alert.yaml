@@ -1,0 +1,10 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: critical-event-alert
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+  - expression: resource.reason in ['CreateContainerError']
+    name: critical-pod-events

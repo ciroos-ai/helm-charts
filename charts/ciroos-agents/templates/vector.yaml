@@ -1,0 +1,552 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector
+  labels:
+    app.kubernetes.io/component: Agent
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+data:
+  agent.yaml: |
+    data_dir: /tmp/vector
+    sources:
+      k8s_events_source:
+        type: http_server
+        address: 0.0.0.0:8989
+        path: /k8s/events
+        method: POST
+        strict_path: true
+        response_code: 200
+      k8s_resources_source:
+        type: http_server
+        address: 0.0.0.0:8990
+        path: /k8s/resources
+        method: POST
+        strict_path: true
+        response_code: 200
+      k8s_v2_events_source:
+        type: http_server
+        address: 0.0.0.0:8991
+        path: /v2/k8s/events
+        method: POST
+        strict_path: true
+        response_code: 200
+      k8s_pod_image_events:
+        type: http_server
+        address: 0.0.0.0:8787
+        path: /k8s/pod_image_events
+        method: POST
+        strict_path: true
+        response_code: 200
+      k8s_sbom_images_source:
+        type: http_server
+        address: 0.0.0.0:9000
+        path: /k8s/sbom
+        method: POST
+        strict_path: true
+        response_code: 200
+      k8s_relationships_source:
+        type: http_server
+        address: 0.0.0.0:8992
+        path: /k8s/relationships
+        method: POST
+        strict_path: true
+        response_code: 200
+      k8s_alerts_source:
+        type: http_server
+        address: 0.0.0.0:8993
+        path: /k8s/alerts
+        method: POST
+        strict_path: true
+        response_code: 200
+      ebpf_topology_source:
+        type: http_server
+        address: 0.0.0.0:8994
+        path: /k8s/ebpf_topology
+        method: POST
+        strict_path: true
+        response_code: 200
+      git_ops_source:
+        type: http_server
+        address: 0.0.0.0:8995
+        path: /k8s/gitops
+        method: POST
+        strict_path: true
+        response_code: 200
+      k8s_resources_metrics_source:
+        type: http_server
+        address: 0.0.0.0:8996
+        path: /k8s/resources_metrics
+        method: POST
+        strict_path: true
+        response_code: 200
+      otel_metrics_source:
+        type: prometheus_remote_write
+        address: 0.0.0.0:9090
+    transforms:
+      k8s_events:
+        type: remap
+        inputs:
+          - k8s_events_source
+        source: |
+          message = parse_json!(.message)
+          . = message
+          .eventTimestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+      k8s_resources:
+        type: remap
+        inputs:
+          - k8s_resources_source
+        source: |
+          message = parse_json!(.message)
+          resources = if is_array(message) {
+            message
+          } else {
+            [message]
+          }
+          # Calculate timestamp once for all resources
+          ts = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+          new_resources = []
+          for_each(array!(resources)) -> |_index, value| {
+            value = set!(value, ["resource_data"], get!(value, ["data"]))
+            value = remove!(value, ["data"])
+            value = set!(value, ["timestamp"], ts)
+            new_resources = push(new_resources, value)
+          }
+          . = new_resources
+      k8s_v2_events:
+        type: remap
+        inputs:
+          - k8s_v2_events_source
+        source: |
+          message = parse_json!(.message)
+          . = message
+          .event_data = .data
+          del(.data)
+          .create_timestamp = .creationTimestamp
+          del(.creationTimestamp)
+          .resource_version = .resourceVersion
+          del(.resourceVersion)
+          .api_version = .apiVersion
+          del(.apiVersion)
+          .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+      k8s_alerts:
+        type: remap
+        inputs:
+          - k8s_alerts_source
+        source: |
+          message = parse_json!(.message)
+          . = message
+          .event_data = .data
+          del(.data)
+          .create_timestamp = .creationTimestamp
+          del(.creationTimestamp)
+          .resource_version = .resourceVersion
+          del(.resourceVersion)
+          .api_version = .apiVersion
+          del(.apiVersion)
+          .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+      k8s_sbom_images:
+        type: remap
+        inputs:
+          - k8s_sbom_images_source
+        source: |
+          message = parse_json!(.message)
+          . = message
+          .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+      k8s_relationships:
+        type: remap
+        inputs:
+          - k8s_relationships_source
+        source: |
+          message = parse_json!(.message)
+          . = message
+          .edges = encode_json(.edges)
+          .event_seen_at = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+      k8s_resources_metrics_transform:
+        type: remap
+        inputs:
+          - k8s_resources_metrics_source
+        source: |
+          message = parse_json!(.message)
+          metrics = if is_array(message) {
+            message
+          } else {
+            [message]
+          }
+          # Calculate timestamp once for all metrics in this batch
+          ts = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%f")
+          new_metrics = []
+          for_each(array!(metrics)) -> |_index, value| {
+            value.ebpf_timestamp = ts
+            new_metrics = push(new_metrics, value)
+          }
+          . = new_metrics
+      k8s_pod_images:
+        type: remap
+        inputs:
+          - k8s_pod_image_events
+        source: |
+          message = parse_json!(.message)
+          . = message
+          if exists(.timestamp){
+            tmp_timestamp = parse_timestamp(.timestamp, "%Y-%m-%d %H:%M:%S %z %Z") ?? parse_timestamp(.timestamp, "%Y-%m-%d %H:%M:%S %z") ?? parse_timestamp(.timestamp, "%Y-%m-%d %H:%M:%S") ?? now()
+            .timestamp = format_timestamp!(tmp_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
+          } else {
+            .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%f")
+          }
+          del(.eventType)
+          imageIds = []
+          containerIds = []
+          images = []
+          for_each(array!(.containers))-> |_index, container| {
+            imageIds = push(imageIds, container.imageId)
+            containerIds = push(containerIds, container.containerId)
+            images = push(images, container.image)
+          }
+          .containerImages = imageIds
+          .containerIds = containerIds
+          .images = images
+          del(.containers)
+      metrics_transform:
+        type: metric_to_log
+        inputs:
+          - otel_metrics_source
+        metric_tag_values: single
+      # {"name":"http_request_latency_milliseconds_count","tags":{"job":"kubernetes-pods","k8s_container_name":"main", "task_name":"setCurrency"},"timestamp":"2024-11-07T07:51:56.463Z","kind":"absolute","gauge":{"value":70137.0}}
+      metrics_clickhouse_transform:
+        type: remap
+        inputs: [metrics_transform, k8s_resources_metrics_transform]
+        source: |
+          metric_name = to_string!(.name)
+          if starts_with(metric_name, "scrape") || metric_name == "up" || starts_with(metric_name, "python_gc") || starts_with(metric_name, "go_memory") {
+            abort
+          }
+          if exists(.tags.k8s_pod_name) {
+            if starts_with(to_string!(.tags.k8s_pod_name), "otel-metrics-generator") {
+              abort
+            }
+          }
+          # Handle timestamps: ebpf uses ebpf_timestamp, Prometheus uses timestamp
+          if exists(.ebpf_timestamp) {
+            # ebpf timestamp is already in the right format
+            .timestamp = .ebpf_timestamp
+            del(.ebpf_timestamp)
+          } else if exists(.timestamp) {
+            # Parse Prometheus timestamp
+            tmp_timestamp = parse_timestamp(.timestamp, "%Y-%m-%dT%H:%M:%S.%f") ?? parse_timestamp(.timestamp, "%Y-%m-%dT%H:%M:%S") ?? parse_timestamp(.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ") ?? now()
+            .timestamp = format_timestamp!(tmp_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
+          }
+          if exists(.counter) {
+            .value = .counter.value
+            del(.counter)
+            .metric_type = "counter"
+            .count = 1
+          }
+          if exists(.gauge) {
+            .value = .gauge.value
+            del(.gauge)
+            .metric_type = "gauge"
+            .count = 1
+          }
+          if exists(.aggregated_histogram) {
+            .value = .aggregated_histogram.sum
+            .count = .aggregated_histogram.count
+            .metric_type = "histogram"
+            del(.aggregated_histogram)
+          }
+          if exists(.tags.app) {
+            .app_name  = .tags.app
+            del(.tags.app)
+          }
+          if exists(.tags.k8s_namespace_name) {
+            .k8s_namespace = .tags.k8s_namespace_name
+            del(.tags.k8s_namespace_name)
+          }
+          if exists(.tags.k8s_node_name) {
+            .k8s_node = .tags.k8s_node_name
+            del(.tags.k8s_node_name)
+          }
+          if exists(.tags.k8s_container_name) {
+            .k8s_container = .tags.k8s_container_name
+            del(.tags.k8s_container_name)
+          }
+          if exists(.tags.k8s_pod_name) {
+            .k8s_pod = .tags.k8s_pod_name
+            del(.tags.k8s_pod_name)
+          }
+          if exists(.tags.pod_template_hash) {
+            del(.tags.pod_template_hash)
+          }
+          if exists(.tags.instance) {
+            del(.tags.instance)
+          }
+          if exists(.tags.job) {
+            del(.tags.job)
+          }
+          .metric_name = .name
+          del(.name)
+      k8s_gitops:
+        type: remap
+        inputs:
+          - git_ops_source
+        source: |
+          message = parse_json!(.message)
+          . = message
+          .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+      ebpf_topology_transform:
+        type: remap
+        inputs: [ebpf_topology_source]
+        source: |
+          message = parse_json!(.message)
+          events = if is_array(message) {
+            message
+          } else {
+            [message]
+          }
+          ts = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%6f")
+          new_events = []
+          for_each(array!(events)) -> |_index, value| {
+            value.timestamp = ts
+            new_events = push(new_events, value)
+          }
+          . = new_events
+    sinks:
+      k8s_events_sink:
+        inputs: [k8s_events]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/events
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      k8s_v2_events_sink:
+        inputs: [k8s_v2_events]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/v2/events
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      k8s_alerts_sink:
+        inputs: [k8s_alerts]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/alerts
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      k8s_resources_sink:
+        inputs: [k8s_resources]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/resources
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      git_ops_sink:
+        inputs: [k8s_gitops]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/gitops
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      k8s_pod_images_sink:
+        inputs: [k8s_pod_images]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/pod_image_events
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      k8s_sbom_images_sink:
+        inputs: [k8s_sbom_images]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/sbom
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      metrics_clickhouse_transform_sink:
+        inputs: [metrics_clickhouse_transform]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/app_metrics
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      ebpf_topology_sink:
+        inputs: [ebpf_topology_transform]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/ebpf_topology
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      k8s_relationships_sink:
+        inputs: [k8s_relationships]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/relationships
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration

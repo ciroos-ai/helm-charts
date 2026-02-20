@@ -1,0 +1,31 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: ResourceWatcher
+metadata:
+  name: endpoints-to-pods
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  resources:
+  - dependencyRules:
+    - direction: outbound
+      expression: |
+        has(resource.subsets) && size(resource.subsets) > 0 ?
+          ((has(resource.subsets[0].addresses) ? resource.subsets[0].addresses : []) +
+           (has(resource.subsets[0].notReadyAddresses) ? resource.subsets[0].notReadyAddresses : []))
+          .filter(address, has(address.targetRef) && address.targetRef.kind == "Pod")
+          .map(address, {
+            "kind": "Pod",
+            "apiVersion": "v1",
+            "name": address.targetRef.name,
+            "namespace": address.targetRef.namespace != "" ? address.targetRef.namespace : resource.metadata.namespace
+          }) : []
+      name: endpoint-pods-all
+      type: network
+    groupVersionKind:
+      group: ""
+      kind: Endpoints
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-endpoints
+    name: endpoints-to-pods

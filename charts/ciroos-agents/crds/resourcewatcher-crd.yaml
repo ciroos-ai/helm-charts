@@ -1,0 +1,153 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: resourcewatchers.lib.ciroos.ai
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.18.0
+spec:
+  group: lib.ciroos.ai
+  names:
+    kind: ResourceWatcher
+    listKind: ResourceWatcherList
+    plural: resourcewatchers
+    singular: resourcewatcher
+  scope: Cluster
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: ResourceWatcher is the Schema for the resourcewatchers API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ResourceWatcherSpec defines the desired state of ResourceWatcher.
+            properties:
+              alwaysSend:
+                default: false
+                description: |-
+                  AlwaysSend when set to true will send matching resources immediately.
+                  By default, resources are sent every hour while dependencies are always delivered.
+                type: boolean
+              resources:
+                description: Resources defines which resources to watch and their rules
+                items:
+                  properties:
+                    dependencyRules:
+                      description: |-
+                        DependencyRules defines relationships between resources
+                        Examples:
+                        - OwnerReference: "source.metadata.ownerReferences.exists(ref, ref.kind == 'ReplicaSet')"
+                        - Volume mount: "source.spec.volumes.exists(v, v.configMap.name == target.metadata.name)"
+                      items:
+                        description: DependencyRule represents a CEL expression
+                        properties:
+                          direction:
+                            description: |-
+                              Direction specifies the direction of the dependency
+                              relative to the resource being evaluated
+                            enum:
+                            - inbound
+                            - outbound
+                            - bidirectional
+                            type: string
+                          expression:
+                            description: Expression is a CEL expression
+                            type: string
+                          name:
+                            description: Name is a unique identifier for the rule
+                            type: string
+                          type:
+                            description: DependencyType specifies the type of the dependency
+                            enum:
+                            - containment
+                            - ownership
+                            - reference
+                            - mount
+                            - network
+                            - storage
+                            - security
+                            - scheduling
+                            type: string
+                        required:
+                        - direction
+                        - expression
+                        - name
+                        - type
+                        type: object
+                      type: array
+                    groupVersionKind:
+                      description: GroupVersionKind specifies the resource type to watch
+                      properties:
+                        group:
+                          type: string
+                        kind:
+                          type: string
+                        version:
+                          type: string
+                      required:
+                      - group
+                      - kind
+                      - version
+                      type: object
+                    matchRules:
+                      description: |-
+                        MatchRules defines CEL expressions to filter resources
+                        Example: "resource.metadata.labels['env'] == 'production'"
+                      items:
+                        description: Rule represents a CEL expression
+                        properties:
+                          expression:
+                            description: Expression is a CEL expression
+                            type: string
+                          name:
+                            description: Name is a unique identifier for the rule
+                            type: string
+                        required:
+                        - expression
+                        - name
+                        type: object
+                      type: array
+                    name:
+                      description: Name is a descriptive name for this watch rule
+                      type: string
+                    namespace:
+                      description: |-
+                        Namespace of the resource deployed in the Cluster.
+                        Empty for resources scoped at cluster level.
+                        For namespaced resources, an empty string "" indicates all namespaces.
+                      type: string
+                  required:
+                  - groupVersionKind
+                  - name
+                  type: object
+                type: array
+            type: object
+          status:
+            description: ResourceWatcherStatus defines the observed state of ResourceWatcher.
+            properties:
+              failureMessage:
+                description: FailureMessage reports errors processing the ResourceWatcher
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status: {}

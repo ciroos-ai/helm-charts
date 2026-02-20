@@ -1,0 +1,62 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: eventrouter-controller-role
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - lib.ciroos.ai
+  resources:
+  - agenthealths
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - lib.ciroos.ai
+  resources:
+  - agenthealths/status
+  - resourcewatchers
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - lib.ciroos.ai
+  resources:
+  - alerts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - lib.ciroos.ai
+  resources:
+  - resourcewatchers/status
+  verbs:
+  - get
+  - patch
+  - update

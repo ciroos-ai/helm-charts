@@ -1,0 +1,31 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: ResourceWatcher
+metadata:
+  name: pod-watcher-cm-mounts
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  alwaysSend: false
+  resources:
+  - dependencyRules:
+    - direction: outbound
+      expression: |
+        has(resource.spec.volumes) ?
+          resource.spec.volumes
+            .filter(vol, has(vol.configMap))
+            .map(vol, {
+              "kind": "ConfigMap",
+              "apiVersion": "v1",
+              "name": vol.configMap.name,
+              "namespace": resource.metadata.namespace
+            }) : []
+      name: configmap-mounts
+      type: mount
+    groupVersionKind:
+      group: ""
+      kind: Pod
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-pods
+    name: running-pods

@@ -1,0 +1,31 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: ResourceWatcher
+metadata:
+  name: replicaset-watcher
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  alwaysSend: false
+  resources:
+  - dependencyRules:
+    - direction: inbound
+      expression: |
+        has(resource.metadata.ownerReferences) ?
+          resource.metadata.ownerReferences
+            .filter(ref, ref.kind == "Deployment")
+            .map(ref, {
+              "kind": ref.kind,
+              "apiVersion": ref.apiVersion,
+              "name": ref.name,
+              "namespace": resource.metadata.namespace
+            }) : []
+      name: deployment-owner
+      type: ownership
+    groupVersionKind:
+      group: apps
+      kind: ReplicaSet
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-replicasets
+    name: running-replicaset

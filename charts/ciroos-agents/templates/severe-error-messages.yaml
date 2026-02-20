@@ -1,0 +1,10 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: severe-error-messages
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+  - expression: resource.message.matches('(?i).*(fatal|critical|panic).*')
+    name: fatal-critical-panic-messages
