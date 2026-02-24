@@ -3,6 +3,17 @@ entries:
   ciroos:
   - apiVersion: v2
     appVersion: 0.2.0
+    created: "2026-02-24T15:53:48.570067324Z"
+    description: Deploys Sveltos applier with pre-generated cluster-specific configuration
+      for connecting a registered Kubernetes cluster to Ciroos
+    digest: e1df906d74983823e59e6b48c160afef9e31e2ea67c251519a11a664b9ab4816
+    name: ciroos
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-0.2.4/ciroos-0.2.4.tgz
+    version: 0.2.4
+  - apiVersion: v2
+    appVersion: 0.2.0
     created: "2026-01-27T08:54:51.586397737Z"
     description: Deploys Sveltos applier with pre-generated cluster-specific configuration
       for connecting a registered Kubernetes cluster to Ciroos
@@ -77,6 +88,17 @@ entries:
   ciroos-agents:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2026-02-24T15:53:48.787412885Z"
+    description: Deploys the Ciroos observability agent into your Kubernetes cluster
+      to provide comprehensive monitoring, event tracking, and network topology analysis.
+    digest: 69f8b47532df73f84d6bf8395fda219cb95f77ce50c06eb8d33b7a8488ee2278
+    name: ciroos-agents
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-agents-0.1.1/ciroos-agents-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2026-02-20T17:57:49.52737322Z"
     description: Deploys the Ciroos observability agent into your Kubernetes cluster
       to provide comprehensive monitoring, event tracking, and network topology analysis.
@@ -87,6 +109,17 @@ entries:
     - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-agents-0.1.0/ciroos-agents-0.1.0.tgz
     version: 0.1.0
   installer:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-02-24T15:53:48.95515254Z"
+    description: Bootstrap installer that automatically registers a Kubernetes cluster
+      with Ciroos and deploys the Sveltos applier agent
+    digest: 495b47604a9f62ec00bdf7efeeb5c5d35dbe85ca630d6a62869065c94f6064f5
+    name: installer
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/installer-0.1.7/installer-0.1.7.tgz
+    version: 0.1.7
   - apiVersion: v2
     appVersion: 0.1.0
     created: "2026-01-27T08:54:51.806030655Z"
@@ -164,4 +197,4 @@ entries:
     urls:
     - https://github.com/ciroos-ai/helm-charts/releases/download/installer-0.1.0/installer-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-20T17:57:49.527410359Z"
+generated: "2026-02-24T15:53:48.95527011Z"
