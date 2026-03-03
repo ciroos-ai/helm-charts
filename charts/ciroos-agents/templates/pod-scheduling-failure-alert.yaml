@@ -1,0 +1,8 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: pod-scheduling-failure-alert
+spec:
+  matchRules:
+    - name: failed-scheduling
+      expression: "resource.reason == 'FailedScheduling'"

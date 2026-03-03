@@ -1,0 +1,8 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: image-pull-backoff-alert
+spec:
+  matchRules:
+    - name: image-pull-backoff
+      expression: "resource.reason == 'BackOff' && resource.message.matches('(?i).*ImagePullBackOff.*')"
