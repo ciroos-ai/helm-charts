@@ -1,0 +1,8 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: pod-eviction-alert
+spec:
+  matchRules:
+    - name: pod-evicted
+      expression: "resource.reason == 'Evicted'"

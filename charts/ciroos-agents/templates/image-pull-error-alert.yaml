@@ -1,0 +1,8 @@
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: image-pull-error-alert
+spec:
+  matchRules:
+    - name: err-image-pull
+      expression: "resource.reason == 'Failed' && resource.message.matches('(?i).*(ErrImagePull|failed to pull image).*')"
