@@ -19,11 +19,9 @@ spec:
       containers:
       - env:
         - name: EBPF_TOPOLOGY_COLLECTOR_REDUCER_ADDR
-          value: {{ quote .Values.ebpfTopoColl.ebpfTopoColl.env.ebpfTopologyCollectorReducerAddr
-            }}
+          value: http://ebpf-topo-reducer:50051
         - name: EBPF_TOPOLOGY_COLLECTOR_LOG_LEVEL
-          value: {{ quote .Values.ebpfTopoColl.ebpfTopoColl.env.ebpfTopologyCollectorLogLevel
-            }}
+          value: info
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
         image: {{ .Values.ebpfTopoColl.ebpfTopoColl.image.repository }}:{{ .Values.ebpfTopoColl.ebpfTopoColl.image.tag
@@ -57,6 +55,7 @@ spec:
       volumes:
       - hostPath:
           path: /sys/fs/cgroup
+          type: ""
         name: cgroup
 {{- end }}
 ---
@@ -83,11 +82,25 @@ spec:
         - name: K8S_NODE_IP
           valueFrom:
             fieldRef:
+              apiVersion: v1
               fieldPath: status.hostIP
         - name: K8S_NODE_NAME
           valueFrom:
             fieldRef:
+              apiVersion: v1
               fieldPath: spec.nodeName
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: "0"
+              resource: limits.memory
+        - name: GOGC
+          value: "50"
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: "0"
+              resource: limits.cpu
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
         image: {{ .Values.otelCollector.otelCollector.image.repository }}:{{ .Values.otelCollector.otelCollector.image.tag
@@ -96,22 +109,18 @@ spec:
         name: otel-collector
         ports:
         - containerPort: 8888
+          protocol: TCP
         resources: {{- toYaml .Values.otelCollector.otelCollector.resources | nindent 10
           }}
         volumeMounts:
         - mountPath: /etc/otel/config.yaml
           name: otel-collector-config-vol
           subPath: config.yaml
-        - mountPath: /tmp/otel-collector
-          name: local-volume
       imagePullSecrets:
       - name: regcred
       volumes:
       - configMap:
+          defaultMode: 420
           name: otel-collector-config
         name: otel-collector-config-vol
-      - hostPath:
-          path: /tmp
-          type: DirectoryOrCreate
-        name: local-volume
 {{- end }}

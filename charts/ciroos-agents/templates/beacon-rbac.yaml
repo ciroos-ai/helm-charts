@@ -44,5 +44,5 @@ roleRef:
   name: 'beacon'
 subjects:
 - kind: ServiceAccount
-  name: default
+  name: 'beacon-sa'
   namespace: '{{ .Release.Namespace }}'

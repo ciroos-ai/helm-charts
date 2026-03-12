@@ -8,3 +8,4 @@ data:
   alertUrl: {{ .Values.eventrouterGvks.alertUrl | quote }}
   dependencyEdgeUrl: {{ .Values.eventrouterGvks.dependencyEdgeUrl | quote }}
   eventUrl: {{ .Values.eventrouterGvks.eventUrl | quote }}
+  heartbeatUrl: {{ .Values.eventrouterGvks.heartbeatUrl | quote }}

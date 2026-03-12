@@ -1,3 +1,4 @@
+{{- if .Values.sourceRepositoryWatcherController.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -16,3 +17,4 @@ spec:
       app.kubernetes.io/name: source-repository-watcher
   policyTypes:
   - Egress
+{{- end }}
