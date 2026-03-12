@@ -13,46 +13,50 @@ spec:
     {{- include "ciroos-agents.selectorLabels" . | nindent 4 }}
   ports:
   - name: pod-images-port
-    port: 8787
     protocol: TCP
+    port: 8787
     targetPort: 8787
   - name: k8s-events-port
-    port: 8989
     protocol: TCP
+    port: 8989
     targetPort: 8989
   - name: sbom-output-port
-    port: 9000
     protocol: TCP
+    port: 9000
     targetPort: 9000
   - name: otlp-grpc-port
-    port: 9090
     protocol: TCP
+    port: 9090
     targetPort: 9090
   - name: k8s-resources-port
-    port: 8990
     protocol: TCP
+    port: 8990
     targetPort: 8990
   - name: k8s-v2-events-port
-    port: 8991
     protocol: TCP
+    port: 8991
     targetPort: 8991
   - name: k8s-relationships
-    port: 8992
     protocol: TCP
+    port: 8992
     targetPort: 8992
   - name: k8s-alerts-port
-    port: 8993
     protocol: TCP
+    port: 8993
     targetPort: 8993
   - name: ebpf-topology-port
-    port: 8994
     protocol: TCP
+    port: 8994
     targetPort: 8994
   - name: git-ops
-    port: 8995
     protocol: TCP
+    port: 8995
     targetPort: 8995
   - name: k8s-resources-metrics-port
-    port: 8996
     protocol: TCP
+    port: 8996
     targetPort: 8996
+  - name: k8s-heartbeat
+    protocol: TCP
+    port: 8997
+    targetPort: 8997

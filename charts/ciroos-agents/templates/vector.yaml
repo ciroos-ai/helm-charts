@@ -82,6 +82,16 @@ data:
       otel_metrics_source:
         type: prometheus_remote_write
         address: 0.0.0.0:9090
+      k8s_heartbeat_source:
+        type: http_server
+        address: 0.0.0.0:8997
+        path: /k8s/heartbeat
+        method: POST
+        strict_path: true
+        response_code: 200
+        framing:
+          method: bytes
+
     transforms:
       k8s_events:
         type: remap
@@ -102,8 +112,10 @@ data:
           } else {
             [message]
           }
+
           # Calculate timestamp once for all resources
           ts = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+
           new_resources = []
           for_each(array!(resources)) -> |_index, value| {
             value = set!(value, ["resource_data"], get!(value, ["data"]))
@@ -111,6 +123,7 @@ data:
             value = set!(value, ["timestamp"], ts)
             new_resources = push(new_resources, value)
           }
+
           . = new_resources
       k8s_v2_events:
         type: remap
@@ -128,6 +141,7 @@ data:
           .api_version = .apiVersion
           del(.apiVersion)
           .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+
       k8s_alerts:
         type: remap
         inputs:
@@ -144,6 +158,7 @@ data:
           .api_version = .apiVersion
           del(.apiVersion)
           .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+
       k8s_sbom_images:
         type: remap
         inputs:
@@ -161,6 +176,7 @@ data:
           . = message
           .edges = encode_json(.edges)
           .event_seen_at = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+
       k8s_resources_metrics_transform:
         type: remap
         inputs:
@@ -172,14 +188,18 @@ data:
           } else {
             [message]
           }
+
           # Calculate timestamp once for all metrics in this batch
           ts = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%f")
+
           new_metrics = []
           for_each(array!(metrics)) -> |_index, value| {
             value.ebpf_timestamp = ts
             new_metrics = push(new_metrics, value)
           }
+
           . = new_metrics
+
       k8s_pod_images:
         type: remap
         inputs:
@@ -302,13 +322,23 @@ data:
           } else {
             [message]
           }
+
           ts = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%6f")
+
           new_events = []
           for_each(array!(events)) -> |_index, value| {
             value.timestamp = ts
             new_events = push(new_events, value)
           }
+
           . = new_events
+      k8s_heartbeat:
+        type: remap
+        inputs: [k8s_heartbeat_source]
+        source: |
+          message = parse_json!(.message)
+          . = message
+          .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
     sinks:
       k8s_events_sink:
         inputs: [k8s_events]
@@ -358,6 +388,7 @@ data:
           timeout_secs: 120   # Increase from 60s to 120s
           retry_attempts: 5   # Explicit retry count
           retry_max_duration_secs: 300  # Total retry duration
+
       k8s_alerts_sink:
         inputs: [k8s_alerts]
         type: http
@@ -531,6 +562,30 @@ data:
         type: http
         compression: gzip
         uri: https://{{ .Values.ingressFqdn }}/sink/k8s/relationships
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      k8s_heartbeat_sink:
+        inputs: [k8s_heartbeat]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/heartbeat
         method: "post"
         encoding:
           codec: "json"
