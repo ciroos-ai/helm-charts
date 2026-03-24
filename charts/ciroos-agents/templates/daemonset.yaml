@@ -2,40 +2,40 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: ebpf-topo-coll
+  name: service-discovery-agent
   labels:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      app: ebpf-topo-coll
+      app: service-discovery-agent
     {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: ebpf-topo-coll
+        app: service-discovery-agent
       {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
     spec:
       containers:
       - env:
-        - name: EBPF_TOPOLOGY_COLLECTOR_REDUCER_ADDR
-          value: http://ebpf-topo-reducer:50051
-        - name: EBPF_TOPOLOGY_COLLECTOR_LOG_LEVEL
+        - name: SERVICE_DISCOVERY_AGENT_SVC_DISC_ADDR
+          value: http://service-discovery:50051
+        - name: SERVICE_DISCOVERY_AGENT_LOG_LEVEL
           value: info
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
-        image: {{ .Values.ebpfTopoColl.ebpfTopoColl.image.repository }}:{{ .Values.ebpfTopoColl.ebpfTopoColl.image.tag
+        image: {{ .Values.serviceDiscoveryAgent.serviceDiscoveryAgent.image.repository }}:{{ .Values.serviceDiscoveryAgent.serviceDiscoveryAgent.image.tag
           | default .Chart.AppVersion }}
-        imagePullPolicy: {{ .Values.ebpfTopoColl.ebpfTopoColl.imagePullPolicy }}
-        name: ebpf-topo-coll
-        resources: {{- toYaml .Values.ebpfTopoColl.ebpfTopoColl.resources | nindent 10
+        imagePullPolicy: {{ .Values.serviceDiscoveryAgent.serviceDiscoveryAgent.imagePullPolicy }}
+        name: service-discovery-agent
+        resources: {{- toYaml .Values.serviceDiscoveryAgent.serviceDiscoveryAgent.resources | nindent 10
           }}
         securityContext:
           runAsUser: 0
           runAsGroup: 0
           capabilities:
             add:
-              {{- if .Values.ebpfTopoColl.ebpfTopoColl.useSysAdminCap }}
+              {{- if .Values.serviceDiscoveryAgent.serviceDiscoveryAgent.useSysAdminCap }}
               - SYS_ADMIN
               {{- else }}
               - BPF
