@@ -1,3 +1,18 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: eventrouter
+  name: eventrouter-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: eventrouter-controller-role
+subjects:
+- kind: ServiceAccount
+  name: eventrouter-controller
+{{- else }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -12,3 +27,4 @@ subjects:
 - kind: ServiceAccount
   name: 'eventrouter-controller'
   namespace: '{{ .Release.Namespace }}'
+{{- end }}

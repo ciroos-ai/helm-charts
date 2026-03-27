@@ -1,4 +1,4 @@
-{{- if .Values.ebpfTopoColl.enabled }}
+{{- if and (not .Values.namespaceScoped) .Values.ebpfTopoColl.enabled }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -59,7 +59,7 @@ spec:
         name: cgroup
 {{- end }}
 ---
-{{- if .Values.otelCollector.enabled }}
+{{- if and (not .Values.namespaceScoped) .Values.otelCollector.enabled }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

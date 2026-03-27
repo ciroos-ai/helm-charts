@@ -1,3 +1,13 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: pod-eviction-alert
+spec:
+  matchRules:
+    - name: pod-evicted
+      expression: "resource.reason == 'Evicted'"
+{{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: Alert
 metadata:
@@ -6,3 +16,4 @@ spec:
   matchRules:
     - name: pod-evicted
       expression: "resource.reason == 'Evicted'"
+{{- end }}

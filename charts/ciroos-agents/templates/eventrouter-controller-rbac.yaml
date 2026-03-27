@@ -1,3 +1,65 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    name: eventrouter-controller-role
+rules:
+- apiGroups:
+    - ""
+    - events.k8s.io
+  resources:
+    - events
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - '*'
+  resources:
+    - '*'
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - lib.ciroos.ai
+  resources:
+    - agenthealths
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - lib.ciroos.ai
+  resources:
+    - agenthealths/status
+    - namespacedresourcewatchers
+  verbs:
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - lib.ciroos.ai
+  resources:
+    - alerts
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - lib.ciroos.ai
+  resources:
+    - namespacedresourcewatchers/status
+  verbs:
+    - get
+    - patch
+    - update
+{{- else }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -60,3 +122,4 @@ rules:
   - get
   - patch
   - update
+{{- end }}

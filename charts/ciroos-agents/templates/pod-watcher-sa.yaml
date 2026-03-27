@@ -1,3 +1,33 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedResourceWatcher
+metadata:
+  name: pod-watcher-sa
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  alwaysSend: false
+  resources:
+  - dependencyRules:
+    - direction: outbound
+      expression: |
+        [{
+          "kind": "ServiceAccount",
+          "apiVersion": "v1",
+          "name": has(resource.spec.serviceAccountName) ? resource.spec.serviceAccountName : "default",
+          "namespace": resource.metadata.namespace
+        }]
+      name: serviceaccount
+      type: security
+    groupVersionKind:
+      group: ""
+      kind: Pod
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-pods
+    name: running-pods
+{{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: ResourceWatcher
 metadata:
@@ -26,3 +56,4 @@ spec:
     - expression: "true"
       name: all-pods
     name: running-pods
+{{- end }}

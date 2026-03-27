@@ -1,4 +1,4 @@
-{{- if .Values.otelCollector.enabled }}
+{{- if and (not .Values.namespaceScoped) .Values.otelCollector.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

@@ -1,3 +1,13 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: image-pull-error-alert
+spec:
+  matchRules:
+    - name: err-image-pull
+      expression: "resource.reason == 'Failed' && resource.message.matches('(?i).*(ErrImagePull|failed to pull image).*')"
+{{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: Alert
 metadata:
@@ -6,3 +16,4 @@ spec:
   matchRules:
     - name: err-image-pull
       expression: "resource.reason == 'Failed' && resource.message.matches('(?i).*(ErrImagePull|failed to pull image).*')"
+{{- end }}
