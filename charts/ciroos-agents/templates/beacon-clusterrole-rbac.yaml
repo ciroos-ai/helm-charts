@@ -1,3 +1,30 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: beacon-role
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+  - watch
+{{- else }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -23,3 +50,4 @@ rules:
   - get
   - list
   - watch
+{{- end }}

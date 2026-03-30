@@ -1,3 +1,13 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: oom-killed-alert
+spec:
+  matchRules:
+    - name: oom-killed
+      expression: "resource.reason in ['OOMKilling', 'OOMKilled'] || resource.message.matches('(?i).*(out of memory|oom).*')"
+{{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: Alert
 metadata:
@@ -6,3 +16,4 @@ spec:
   matchRules:
     - name: oom-killed
       expression: "resource.reason in ['OOMKilling', 'OOMKilled'] || resource.message.matches('(?i).*(out of memory|oom).*')"
+{{- end }}

@@ -1,3 +1,13 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: crash-loop-backoff-alert
+spec:
+  matchRules:
+    - name: crash-loop-backoff
+      expression: "resource.reason == 'BackOff' && resource.message.matches('(?i).*(back-off|crashing).*restarting.*container.*')"
+{{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: Alert
 metadata:
@@ -6,3 +16,4 @@ spec:
   matchRules:
     - name: crash-loop-backoff
       expression: "resource.reason == 'BackOff' && resource.message.matches('(?i).*(back-off|crashing).*restarting.*container.*')"
+{{- end }}

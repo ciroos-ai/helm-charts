@@ -1,3 +1,19 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: beacon-rolebinding
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: 'beacon-role'
+subjects:
+- kind: ServiceAccount
+  name: 'beacon-sa'
+  namespace: '{{ .Release.Namespace }}'
+{{- else }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -12,3 +28,4 @@ subjects:
 - kind: ServiceAccount
   name: 'beacon-sa'
   namespace: '{{ .Release.Namespace }}'
+{{- end }}

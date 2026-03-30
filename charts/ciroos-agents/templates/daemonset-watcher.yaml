@@ -1,3 +1,33 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedResourceWatcher
+metadata:
+  name: daemonset-watcher
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  alwaysSend: false
+  resources:
+  - dependencyRules:
+    - direction: inbound
+      expression: |
+        [{
+          "kind": "Namespace",
+          "apiVersion": "v1",
+          "name": resource.metadata.namespace,
+          "namespace": ""
+        }]
+      name: namespace
+      type: containment
+    groupVersionKind:
+      group: apps
+      kind: DaemonSet
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-daemonsets
+    name: daemonset
+{{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: ResourceWatcher
 metadata:
@@ -26,3 +56,4 @@ spec:
     - expression: "true"
       name: all-daemonsets
     name: daemonset
+{{- end }}

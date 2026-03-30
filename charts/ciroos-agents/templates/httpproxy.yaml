@@ -1,3 +1,36 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedResourceWatcher
+metadata:
+  name: httpproxy
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  resources:
+  - dependencyRules:
+    - direction: outbound
+      expression: |
+        has(resource.spec.routes) ?
+          resource.spec.routes
+            .filter(route, has(route.services) && size(route.services) > 0)
+            .map(route, route.services[0])
+            .map(service, {
+              "kind": "Service",
+              "apiVersion": "v1",
+              "name": service.name,
+              "namespace": resource.metadata.namespace
+            }) : []
+      name: httpproxy-services
+      type: reference
+    groupVersionKind:
+      group: projectcontour.io
+      kind: HTTPProxy
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-httpproxies
+    name: httpproxy
+{{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: ResourceWatcher
 metadata:
@@ -29,3 +62,4 @@ spec:
     - expression: "true"
       name: all-httpproxies
     name: httpproxy
+{{- end }}

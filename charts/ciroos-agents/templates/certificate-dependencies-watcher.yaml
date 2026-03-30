@@ -1,3 +1,51 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedResourceWatcher
+metadata:
+  name: certificate-dependencies-watcher
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  resources:
+  - groupVersionKind:
+      group: cert-manager.io
+      kind: Issuer
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-issuers
+    name: all-issuers
+  - dependencyRules:
+    - direction: outbound
+      expression: |
+        [{
+          "kind": resource.spec.issuerRef.kind,
+          "apiVersion": has(resource.spec.issuerRef.group) ?
+            resource.spec.issuerRef.group + "/" + "v1" : "cert-manager.io/v1",
+          "name": resource.spec.issuerRef.name,
+          "namespace": resource.spec.issuerRef.kind == "ClusterIssuer" ? "" : resource.metadata.namespace
+        }]
+      name: certificate-to-issuer
+      type: reference
+    - direction: outbound
+      expression: |
+        [{
+          "kind": "Secret",
+          "apiVersion": "v1",
+          "name": resource.spec.secretName,
+          "namespace": resource.metadata.namespace
+        }]
+      name: certificate-to-secret
+      type: storage
+    groupVersionKind:
+      group: cert-manager.io
+      kind: Certificate
+      version: v1
+    matchRules:
+    - expression: "true"
+      name: all-certificates
+    name: all-certificates
+{{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: ResourceWatcher
 metadata:
@@ -44,3 +92,4 @@ spec:
     - expression: "true"
       name: all-certificates
     name: all-certificates
+{{- end }}

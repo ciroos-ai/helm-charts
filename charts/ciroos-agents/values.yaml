@@ -1,3 +1,4 @@
+namespaceScoped: false
 clusterNamespace: ""
 clusterName: "cluster-name"
 ingressFqdn: ""
@@ -62,7 +63,7 @@ eventrouterController:
       readOnlyRootFilesystem: true
     image:
       repository: registry.ciroos.ai/netra/eventrouter-controller
-      tag: 2b3e98a6a-48a80b2f6-260312T1544Z
+      tag: 06ccc0002-17f5206e7-260327T1049Z
     resources:
       limits:
         cpu: 500m
@@ -83,6 +84,7 @@ eventrouterGvks:
   heartbeatUrl: http://vector-service:8997/k8s/heartbeat
 kubernetesClusterDomain: cluster.local
 otelCollector:
+  enabled: true
   otelCollector:
     image:
       repository: registry.ciroos.ai/otel/opentelemetry-collector-contrib

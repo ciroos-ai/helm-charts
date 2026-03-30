@@ -165,7 +165,10 @@ spec:
         - --configuration=eventrouter-gvks
         - --deploymentName=eventrouter-controller
         - --discard-managed-fields=true
-        - --liveness-checks=true
+{{- if .Values.namespaceScoped }}
+        - --namespace-scoped=true
+        - --enable-cluster-score=false
+{{- end }}
         command:
         - /manager
         env:
@@ -227,7 +230,7 @@ spec:
       - emptyDir: {}
         name: tmp-volume
 ---
-{{- if .Values.sourceRepositoryWatcherController.enabled }}
+{{- if and (not .Values.namespaceScoped) .Values.sourceRepositoryWatcherController.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
