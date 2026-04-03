@@ -13,7 +13,7 @@ uninstaller:
       - --skip-projectsveltos=false
     image:
       repository: registry.ciroos.ai/ciroos/uninstaller
-      tag: 6dbe31455-amd64
+      tag: bfd285221-2974753e1-260402T1435Z
 sveltosApplierManager:
   annotations: {}
   labels: {}
@@ -28,8 +28,8 @@ sveltosApplierManager:
       seccompProfile:
         type: RuntimeDefault
     image:
-      repository: docker.io/projectsveltos/sveltos-applier
-      tag: v1.3.1
+      repository: registry.ciroos.ai/runtime/projectsveltos/sveltos-applier
+      tag: 1.6.0-43a361a002de
     resources:
       limits:
         cpu: 500m

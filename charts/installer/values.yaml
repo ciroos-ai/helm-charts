@@ -18,7 +18,7 @@ bootstrap:
       clusterName:
     image:
       repository: registry.ciroos.ai/ciroos/bootstrap
-      tag: 3a2ca4cfd-0c9f09279-260126154532
+      tag: 71513238f-02b3aa6c1-260402T1415Z
     imagePullPolicy: IfNotPresent
     resources:
       requests:
@@ -38,4 +38,4 @@ uninstaller:
       - --skip-projectsveltos=false
     image:
       repository: registry.ciroos.ai/ciroos/uninstaller
-      tag: 6dbe31455-amd64
+      tag: bfd285221-2974753e1-260402T1435Z
