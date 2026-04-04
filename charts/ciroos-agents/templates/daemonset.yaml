@@ -31,27 +31,33 @@ spec:
         resources: {{- toYaml .Values.ebpfTopoColl.ebpfTopoColl.resources | nindent 10
           }}
         securityContext:
-          runAsUser: 0
-          runAsGroup: 0
+        {{- if (not .Values.ebpfTopoColl.ebpfTopoColl.containerSecurityContext) }}
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
           capabilities:
-            add:
-              {{- if .Values.ebpfTopoColl.ebpfTopoColl.useSysAdminCap }}
-              - SYS_ADMIN
-              {{- else }}
-              - BPF
-              - PERFMON
-              {{- end }}
-              - NET_ADMIN
-              - SYS_RESOURCE
             drop:
               - ALL
+            add:
+              - NET_ADMIN
+              - SYS_RESOURCE
+          {{- if .Values.ebpfTopoColl.ebpfTopoColl.useSysAdminCap }}
+              - SYS_ADMIN
+          {{- else }}
+              - BPF
+              - PERFMON
+          {{- end }}
+        {{- else }}
+          {{- toYaml .Values.ebpfTopoColl.ebpfTopoColl.containerSecurityContext
+            | nindent 10 }}
+        {{- end }}
         volumeMounts:
         - mountPath: /sys/fs/cgroup
           name: cgroup
           readOnly: true
-      hostPID: true
       imagePullSecrets:
       - name: regcred
+      securityContext: {{- toYaml .Values.ebpfTopoColl.podSecurityContext | nindent
+        8 }}
       volumes:
       - hostPath:
           path: /sys/fs/cgroup
@@ -106,6 +112,8 @@ spec:
         image: {{ .Values.otelCollector.otelCollector.image.repository }}:{{ .Values.otelCollector.otelCollector.image.tag
           | default .Chart.AppVersion }}
         imagePullPolicy: {{ .Values.otelCollector.otelCollector.imagePullPolicy }}
+        securityContext: {{- toYaml .Values.otelCollector.otelCollector.containerSecurityContext
+          | nindent 10 }}
         name: otel-collector
         ports:
         - containerPort: 8888
@@ -118,6 +126,8 @@ spec:
           subPath: config.yaml
       imagePullSecrets:
       - name: regcred
+      securityContext: {{- toYaml .Values.otelCollector.podSecurityContext | nindent
+        8 }}
       volumes:
       - configMap:
           defaultMode: 420
