@@ -44,7 +44,7 @@ Optional Agents (can be disabled)
 ├──────────────────────────────────────┼──────────────────────────────────────────────┼────────────────────────────────────────┤
 │ otelcollector                        │ OpenTelemetry metrics collection             │ otelcollector.enabled: false           │
 ├──────────────────────────────────────┼──────────────────────────────────────────────┼────────────────────────────────────────┤
-│ ebpf-topo-coll                       │ eBPF network topology collection (DaemonSet) │ ebpfTopoColl.enabled: false            │
+│ service-discovery-agent              │ Service discovery agent (DaemonSet)          │ serviceDiscoveryAgent.enabled: false   │
 ├──────────────────────────────────────┼──────────────────────────────────────────────┼────────────────────────────────────────┤
 │ source-repository-watcher-controller │ GitOps state monitoring (ArgoCD/Flux)        │ sourceRepositoryWatcher.enabled: false │
 └──────────────────────────────────────┴──────────────────────────────────────────────┴────────────────────────────────────────┘
@@ -71,7 +71,7 @@ Disable Optional Components
 otelcollector:
   enabled: false
 
-ebpfTopoColl:
+serviceDiscoveryAgent:
   enabled: false
 
 sourceRepositoryWatcher:

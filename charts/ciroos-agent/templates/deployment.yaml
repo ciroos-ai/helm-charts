@@ -82,48 +82,48 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ebpf-topo-reducer
+  name: service-discovery
   labels:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.ebpfTopoReducer.replicas }}
+  replicas: {{ .Values.serviceDiscovery.replicas }}
   selector:
     matchLabels:
-      app: ebpf-topo-reducer
+      app: service-discovery
     {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: ebpf-topo-reducer
+        app: service-discovery
       {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
     spec:
       containers:
       - env:
-        - name: EBPF_TOPOLOGY_REDUCER_LOG_LEVEL
+        - name: SERVICE_DISCOVERY_LOG_LEVEL
           value: info
-        - name: EBPF_TOPOLOGY_REDUCER_EBPF_TOPO_TCP_CONNECTIONS_VECTOR_URL
+        - name: SERVICE_DISCOVERY_SVC_DIS_TCP_CONNECTIONS_VECTOR_URL
           value: http://vector-service:8994/k8s/ebpf_topology
-        - name: EBPF_TOPOLOGY_REDUCER_K8S_RESOURCES_VECTOR_URL
+        - name: SERVICE_DISCOVERY_K8S_RESOURCES_VECTOR_URL
           value: http://vector-service:8996/k8s/resources_metrics
-        - name: EBPF_TOPOLOGY_REDUCER_PUSH_INTERVAL_SECS
+        - name: SERVICE_DISCOVERY_PUSH_INTERVAL_SECS
           value: "300"
-        - name: EBPF_TOPOLOGY_REDUCER_INGEST_URI
+        - name: SERVICE_DISCOVERY_INGEST_URI
           value: https://{{ .Values.ingressFqdn }}
-        - name: EBPF_TOPOLOGY_REDUCER_LB_REFRESH_INTERVAL_SECS
+        - name: SERVICE_DISCOVERY_LB_REFRESH_INTERVAL_SECS
           value: "600"
-        - name: EBPF_TOPOLOGY_REDUCER_TLS_CERT_PATH
+        - name: SERVICE_DISCOVERY_TLS_CERT_PATH
           value: /etc/certs/tls.crt
-        - name: EBPF_TOPOLOGY_REDUCER_TLS_KEY_PATH
+        - name: SERVICE_DISCOVERY_TLS_KEY_PATH
           value: /etc/certs/tls.key
-        - name: EBPF_TOPOLOGY_REDUCER_TLS_CA_PATH
+        - name: SERVICE_DISCOVERY_TLS_CA_PATH
           value: /etc/certs/ca.crt
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
-        image: {{ .Values.ebpfTopoReducer.ebpfTopoReducer.image.repository }}:{{ .Values.ebpfTopoReducer.ebpfTopoReducer.image.tag
+        image: {{ .Values.serviceDiscovery.serviceDiscovery.image.repository }}:{{ .Values.serviceDiscovery.serviceDiscovery.image.tag
           | default .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
-        name: ebpf-topo-reducer
-        resources: {{- toYaml .Values.ebpfTopoReducer.ebpfTopoReducer.resources | nindent
+        name: service-discovery
+        resources: {{- toYaml .Values.serviceDiscovery.serviceDiscovery.resources | nindent
           10 }}
         volumeMounts:
         - mountPath: /etc/certs
@@ -131,7 +131,7 @@ spec:
           readOnly: true
       imagePullSecrets:
       - name: regcred
-      serviceAccountName: ebpf-topo-reducer
+      serviceAccountName: service-discovery
       terminationGracePeriodSeconds: 30
       volumes:
       - name: ciroos-agent-cert

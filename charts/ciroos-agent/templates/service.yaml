@@ -44,7 +44,7 @@ spec:
     protocol: TCP
     port: 8993
     targetPort: 8993
-  - name: ebpf-topology-port
+  - name: service-discovery-topology-port
     protocol: TCP
     port: 8994
     targetPort: 8994

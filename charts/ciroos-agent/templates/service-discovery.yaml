@@ -1,20 +1,20 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ebpf-topo-reducer
+  name: service-discovery
   labels:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   type: ClusterIP
   selector:
-    app: ebpf-topo-reducer
+    app: service-discovery
     {{- include "ciroos-agents.selectorLabels" . | nindent 4 }}
   ports:
-  - name: ebpf-reducer-grpc
+  - name: service-discovery-grpc
     port: 50051
     protocol: TCP
     targetPort: 50051
-  - name: ebpf-reducer-prometheus
+  - name: service-discovery-prometheus
     port: 7010
     protocol: TCP
     targetPort: 7010

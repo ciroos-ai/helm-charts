@@ -24,12 +24,12 @@ beacon:
 beaconSa:
   serviceAccount:
     annotations: {}
-ebpfTopoColl:
+serviceDiscoveryAgent:
   enabled: true
-  ebpfTopoColl:
+  serviceDiscoveryAgent:
     useSysAdminCap: false
     image:
-      repository: registry.ciroos.ai/netra/ebpf-topo-coll
+      repository: registry.ciroos.ai/netra/service-discovery-agent
       tag: e0299ca08-52618fe41-260225T1856Z
     resources:
       limits:
@@ -38,10 +38,10 @@ ebpfTopoColl:
       requests:
         cpu: 100m
         memory: 128Mi
-ebpfTopoReducer:
-  ebpfTopoReducer:
+serviceDiscovery:
+  serviceDiscovery:
     image:
-      repository: registry.ciroos.ai/netra/ebpf-topo-reducer
+      repository: registry.ciroos.ai/netra/service-discovery
       tag: e0299ca08-77f9a88e5-260225T1856Z
     resources:
       limits:

@@ -48,7 +48,7 @@ spec:
                   properties:
                     agentName:
                       description: AgentName identifies the specific Ciroos agent (beacon,
-                        vector, ebpf-topo-coll, etc.)
+                        vector, service-discovery-agent, etc.)
                       type: string
                     errors:
                       description: Erros represent the latest available agent's errors
