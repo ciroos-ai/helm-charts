@@ -59,7 +59,7 @@ eventrouterController:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
-        - ALL
+          - ALL
       readOnlyRootFilesystem: true
     image:
       repository: registry.ciroos.ai/netra/eventrouter-controller
@@ -87,8 +87,8 @@ otelCollector:
   enabled: true
   otelCollector:
     image:
-      repository: registry.ciroos.ai/otel/opentelemetry-collector-contrib
-      tag: 0.122.0
+      repository: registry.ciroos.ai/netra/otelcollector
+      tag: 55aeaf463-95c9afbcc-260402T1317Z
     resources:
       limits:
         cpu: 250m
@@ -103,7 +103,7 @@ sourceRepositoryWatcherController:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
-        - ALL
+          - ALL
       readOnlyRootFilesystem: true
     image:
       repository: registry.ciroos.ai/netra/source-repository-watcher
