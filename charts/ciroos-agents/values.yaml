@@ -20,12 +20,24 @@ beacon:
       requests:
         cpu: 100m
         memory: 256Mi
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
   replicas: 1
+  podSecurityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
 beaconSa:
   serviceAccount:
     annotations: {}
 ebpfTopoColl:
-  enabled: true
   ebpfTopoColl:
     useSysAdminCap: false
     image:
@@ -38,6 +50,15 @@ ebpfTopoColl:
       requests:
         cpu: 100m
         memory: 128Mi
+    containerSecurityContext:
+  enabled: true
+  podSecurityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    runAsNonRoot: true
+    seccompProfile:
+      type: Unconfined  # eBPF requires bpf() and perf_event_open() syscalls blocked by RuntimeDefault
 ebpfTopoReducer:
   ebpfTopoReducer:
     image:
@@ -50,17 +71,24 @@ ebpfTopoReducer:
       requests:
         cpu: 500m
         memory: 256Mi
-  replicas: 1
-  serviceAccount:
-    annotations: {}
-eventrouterController:
-  controller:
     containerSecurityContext:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
           - ALL
       readOnlyRootFilesystem: true
+  replicas: 1
+  serviceAccount:
+    annotations: {}
+  podSecurityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+eventrouterController:
+  controller:
     image:
       repository: registry.ciroos.ai/netra/eventrouter-controller
       tag: 06ccc0002-17f5206e7-260327T1049Z
@@ -71,8 +99,17 @@ eventrouterController:
       requests:
         cpu: 250m
         memory: 512Mi
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
   podSecurityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
     runAsNonRoot: true
+    runAsUser: 1000
     seccompProfile:
       type: RuntimeDefault
   serviceAccount:
@@ -84,7 +121,6 @@ eventrouterGvks:
   heartbeatUrl: http://vector-service:8997/k8s/heartbeat
 kubernetesClusterDomain: cluster.local
 otelCollector:
-  enabled: true
   otelCollector:
     image:
       repository: registry.ciroos.ai/netra/otelcollector
@@ -96,15 +132,22 @@ otelCollector:
       requests:
         cpu: 100m
         memory: 128Mi
-sourceRepositoryWatcherController:
-  enabled: true
-  controller:
     containerSecurityContext:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
           - ALL
       readOnlyRootFilesystem: true
+  enabled: true
+  podSecurityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+sourceRepositoryWatcherController:
+  controller:
     image:
       repository: registry.ciroos.ai/netra/source-repository-watcher
       tag: 7930def4b-49f4b2ec4-260227T1741Z
@@ -115,17 +158,24 @@ sourceRepositoryWatcherController:
       requests:
         cpu: 100m
         memory: 128Mi
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+  enabled: true
+  replicas: 1
+  serviceAccount:
+    annotations: {}
   podSecurityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
     runAsNonRoot: true
+    runAsUser: 1000
     seccompProfile:
       type: RuntimeDefault
-  replicas: 1
-  serviceAccount:
-    annotations: {}
 vector:
-  replicas: 1
-  serviceAccount:
-    annotations: {}
   vector:
     env:
       rustBacktrace: full
@@ -140,3 +190,19 @@ vector:
       requests:
         cpu: "1"
         memory: 512Mi
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+  replicas: 1
+  serviceAccount:
+    annotations: {}
+  podSecurityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault

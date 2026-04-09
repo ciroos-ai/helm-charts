@@ -64,6 +64,8 @@ spec:
         image: {{ .Values.beacon.beacon.image.repository }}:{{ .Values.beacon.beacon.image.tag
           | default .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
+        securityContext: {{- toYaml .Values.beacon.beacon.containerSecurityContext
+          | nindent 10 }}
         name: beacon
         resources: {{- toYaml .Values.beacon.beacon.resources | nindent 10 }}
         volumeMounts:
@@ -72,6 +74,8 @@ spec:
           readOnly: true
       imagePullSecrets:
       - name: regcred
+      securityContext: {{- toYaml .Values.beacon.podSecurityContext | nindent
+        8 }}
       serviceAccountName: beacon-sa
       volumes:
       - name: ciroos-agent-cert
@@ -122,6 +126,8 @@ spec:
         image: {{ .Values.ebpfTopoReducer.ebpfTopoReducer.image.repository }}:{{ .Values.ebpfTopoReducer.ebpfTopoReducer.image.tag
           | default .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
+        securityContext: {{- toYaml .Values.ebpfTopoReducer.ebpfTopoReducer.containerSecurityContext
+          | nindent 10 }}
         name: ebpf-topo-reducer
         resources: {{- toYaml .Values.ebpfTopoReducer.ebpfTopoReducer.resources | nindent
           10 }}
@@ -131,6 +137,8 @@ spec:
           readOnly: true
       imagePullSecrets:
       - name: regcred
+      securityContext: {{- toYaml .Values.ebpfTopoReducer.podSecurityContext | nindent
+        8 }}
       serviceAccountName: ebpf-topo-reducer
       terminationGracePeriodSeconds: 30
       volumes:
@@ -279,6 +287,7 @@ spec:
         image: '{{ .Values.sourceRepositoryWatcherController.controller.image.repository
           }}:{{ .Values.sourceRepositoryWatcherController.controller.image.tag | default
           .Chart.AppVersion }}'
+        imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
             path: /healthz
@@ -316,11 +325,13 @@ kind: Deployment
 metadata:
   name: vector
   labels:
+    app: vector
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.vector.replicas }}
   selector:
     matchLabels:
+      app: vector
       app.kubernetes.io/component: Agent
       app.kubernetes.io/instance: vector
       app.kubernetes.io/name: vector
@@ -328,6 +339,7 @@ spec:
   template:
     metadata:
       labels:
+        app: vector
         app.kubernetes.io/component: Agent
         app.kubernetes.io/instance: vector
         app.kubernetes.io/name: vector
@@ -373,6 +385,8 @@ spec:
         image: {{ .Values.vector.vector.image.repository }}:{{ .Values.vector.vector.image.tag
           | default .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
+        securityContext: {{- toYaml .Values.vector.vector.containerSecurityContext
+          | nindent 10 }}
         name: vector
         ports:
         - containerPort: 9090
@@ -390,6 +404,8 @@ spec:
           readOnly: true
       imagePullSecrets:
       - name: regcred
+      securityContext: {{- toYaml .Values.vector.podSecurityContext | nindent
+        8 }}
       serviceAccountName: vector
       terminationGracePeriodSeconds: 60
       volumes:

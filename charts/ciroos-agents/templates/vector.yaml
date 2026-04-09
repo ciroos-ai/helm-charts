@@ -7,7 +7,7 @@ metadata:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 data:
   agent.yaml: |
-    data_dir: /tmp/vector
+    data_dir: /vector-data-dir/vector
     sources:
       k8s_events_source:
         type: http_server
