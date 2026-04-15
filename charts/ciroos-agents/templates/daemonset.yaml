@@ -40,6 +40,8 @@ spec:
             add:
               - NET_ADMIN
               - SYS_RESOURCE
+              - SYS_PTRACE
+              - DAC_READ_SEARCH
           {{- if .Values.ebpfTopoColl.ebpfTopoColl.useSysAdminCap }}
               - SYS_ADMIN
           {{- else }}
