@@ -42,7 +42,7 @@ ebpfTopoColl:
     useSysAdminCap: false
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-coll
-      tag: e0299ca08-52618fe41-260225T1856Z
+      tag: 530d845b6-2b36b3d8e-260417T1439Z
     resources:
       limits:
         cpu: 250m
