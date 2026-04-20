@@ -1,0 +1,47 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: argocd-application-failures
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    # Captures critical sync failures (e.g., Git unreachable, invalid YAML)
+    # Source Code Reason: "OperationFailed"
+    - name: sync-operation-failed
+      expression: "resource.reason == 'OperationFailed' && resource.kind == 'Application'"
+
+    # Captures manifest generation errors (e.g., Helm template errors)
+    # Source Code Reason: "ComparisonError"
+    - name: manifest-generation-error
+      expression: "resource.reason == 'ComparisonError'"
+
+    # Captures when an app stays in a broken state (e.g., CrashLoopBackOff)
+    # Source Code Reason: "HealthDegraded"
+    - name: application-health-degraded
+      expression: "resource.reason == 'HealthDegraded' && !resource.message.matches('(?i).*progressing.*')"
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: argocd-application-failures
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    # Captures critical sync failures (e.g., Git unreachable, invalid YAML)
+    # Source Code Reason: "OperationFailed"
+    - name: sync-operation-failed
+      expression: "resource.reason == 'OperationFailed' && resource.kind == 'Application'"
+
+    # Captures manifest generation errors (e.g., Helm template errors)
+    # Source Code Reason: "ComparisonError"
+    - name: manifest-generation-error
+      expression: "resource.reason == 'ComparisonError'"
+
+    # Captures when an app stays in a broken state (e.g., CrashLoopBackOff)
+    # Source Code Reason: "HealthDegraded"
+    - name: application-health-degraded
+      expression: "resource.reason == 'HealthDegraded' && !resource.message.matches('(?i).*progressing.*')"
+{{- end }}

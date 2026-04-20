@@ -7,6 +7,9 @@ metadata:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 data:
   agent.yaml: |
+    api:
+      enabled: true
+      address: 0.0.0.0:8686
     data_dir: /vector-data-dir/vector
     sources:
       k8s_events_source:
@@ -48,6 +51,13 @@ data:
         type: http_server
         address: 0.0.0.0:8992
         path: /k8s/relationships
+        method: POST
+        strict_path: true
+        response_code: 200
+      k8s_relationships_v2_source:
+        type: http_server
+        address: 0.0.0.0:8998
+        path: /k8s/relationships/v2
         method: POST
         strict_path: true
         response_code: 200
@@ -176,6 +186,33 @@ data:
           . = message
           .edges = encode_json(.edges)
           .event_seen_at = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+
+      k8s_relationships_v2:
+        type: remap
+        inputs:
+          - k8s_relationships_v2_source
+        source: |
+          message = parse_json!(.message)
+          ts = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+          . = []
+          for_each(array(message.edges) ?? []) -> |_index, edge| {
+            . = push(., {
+              "evaluation_id":         message.evaluation_id ||  "",
+              "resource_watcher_name": message.resource_watcher_name ||  "",
+              "edge_name":             edge.name ||  "",
+              "edge_type":             edge.type ||  "",
+              "edge_direction":        edge.direction ||  "",
+              "from_kind":             edge.from_kind ||  "",
+              "from_api_version":      edge.from_api_version ||  "",
+              "from_namespace":        edge.from_namespace ||  "",
+              "from_name":             edge.from_name ||  "",
+              "to_kind":               edge.to_kind ||  "",
+              "to_api_version":        edge.to_api_version ||  "",
+              "to_namespace":          edge.to_namespace ||  "",
+              "to_name":               edge.to_name ||  "",
+              "event_seen_at":         ts,
+            })
+          }
 
       k8s_resources_metrics_transform:
         type: remap
@@ -581,6 +618,35 @@ data:
           timeout_secs: 120   # Increase from 60s to 120s
           retry_attempts: 5   # Explicit retry count
           retry_max_duration_secs: 300  # Total retry duration
+      k8s_relationships_v2_sink:
+        inputs: [k8s_relationships_v2]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/relationships/v2
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      k8s_heartbeat_console:
+        inputs: [k8s_heartbeat]
+        type: console
+        encoding:
+          codec: "json"
       k8s_heartbeat_sink:
         inputs: [k8s_heartbeat]
         type: http
@@ -605,3 +671,4 @@ data:
           timeout_secs: 120   # Increase from 60s to 120s
           retry_attempts: 5   # Explicit retry count
           retry_max_duration_secs: 300  # Total retry duration
+

@@ -1,0 +1,41 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: flux-controller-failures
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    # Captures the "InventoryBuildFailedReason"
+    - name: inventory-build-failure
+      expression: "resource.reason == 'InventoryBuildFailed'"
+
+    # Captures "NotificationDispatchFailed" and "InvalidConfig" from the alertLogger logic
+    - name: notification-dispatch-error
+      expression: "resource.reason == 'NotificationDispatchFailed' || resource.reason == 'InvalidConfig'"
+
+    # Captures the Terminal errors that cause a "Stalled" state
+    - name: terminal-reconciliation-failure
+      expression: "resource.reason == 'ReconciliationFailed' && resource.message.matches('(?i).*terminal.*')"
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: flux-controller-failures
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    # Captures the "InventoryBuildFailedReason"
+    - name: inventory-build-failure
+      expression: "resource.reason == 'InventoryBuildFailed'"
+
+    # Captures "NotificationDispatchFailed" and "InvalidConfig" from the alertLogger logic
+    - name: notification-dispatch-error
+      expression: "resource.reason == 'NotificationDispatchFailed' || resource.reason == 'InvalidConfig'"
+
+    # Captures the Terminal errors that cause a "Stalled" state
+    - name: terminal-reconciliation-failure
+      expression: "resource.reason == 'ReconciliationFailed' && resource.message.matches('(?i).*terminal.*')"
+{{- end }}
