@@ -1,0 +1,23 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: pod-dns-config-limit-exceeded
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: limit-exceeded
+      expression: "resource.reason == 'DNSConfigForming'"
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: pod-dns-config-limit-exceeded
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: limit-exceeded
+      expression: "resource.reason == 'DNSConfigForming'"
+{{- end }}

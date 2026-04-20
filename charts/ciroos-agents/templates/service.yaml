@@ -40,6 +40,10 @@ spec:
     protocol: TCP
     port: 8992
     targetPort: 8992
+  - name: k8s-relationships-v2
+    protocol: TCP
+    port: 8998
+    targetPort: 8998
   - name: k8s-alerts-port
     protocol: TCP
     port: 8993
@@ -60,3 +64,7 @@ spec:
     protocol: TCP
     port: 8997
     targetPort: 8997
+  - name: vector-api
+    protocol: TCP
+    port: 8686
+    targetPort: 8686

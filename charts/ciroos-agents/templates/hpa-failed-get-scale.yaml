@@ -1,0 +1,23 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: hpa-failed-get-scale
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: orphaned-hpa-detector
+      expression: "resource.reason == 'FailedGetScale'"
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: hpa-failed-get-scale
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: orphaned-hpa-detector
+      expression: "resource.reason == 'FailedGetScale'"
+{{- end }}

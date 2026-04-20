@@ -1,0 +1,109 @@
+{{- if .Values.namespaceScoped }}
+# If cert-manager cannot find the Issuer or the Issuer itself is unhealthy (e.g., Vault is sealed, Cloudflare API key expired), no certificates can be issued.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: cert-manager-issuer-unavailable
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: issuer-not-found
+      expression: "resource.reason == 'IssuerNotFound'"
+    - name: issuer-not-ready
+      expression: "resource.reason == 'IssuerNotReady'"
+---
+# The user changed the Certificate requirements (e.g., switched from RSA to ECDSA), but the rotationPolicy prevents cert-manager from fixing it. The cert will never renew.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: cert-manager-rotation-blocked
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: manual-intervention-required
+      expression: "resource.reason == 'CannotRegenerateKey'"
+---
+# If Let's Encrypt is used, these indicate that the "handshake" with the CA is failing. This is usually due to DNS propagation issues or firewall blocks on the .well-known/acme-challenge path.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: cert-manager-acme-failure
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: challenge-present-error
+      expression: "resource.reason == 'PresentError'"
+    - name: challenge-failed
+      expression: "resource.reason == 'Failed' && resource.kind == 'Challenge'"
+---
+# If cert-manager can't read the existing CA keypair or the Secret contains garbage data, it cannot sign new certificates.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: cert-manager-secret-access-error
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: secret-data-invalid
+      expression: "resource.reason == 'SecretInvalidData' || resource.reason == 'ErrorParsingKey'"
+    - name: secret-get-error
+      expression: "resource.reason == 'SecretGetError' || resource.reason == 'ErrorGettingSecret'"
+{{- else }}
+# If cert-manager cannot find the Issuer or the Issuer itself is unhealthy (e.g., Vault is sealed, Cloudflare API key expired), no certificates can be issued.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: cert-manager-issuer-unavailable
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: issuer-not-found
+      expression: "resource.reason == 'IssuerNotFound'"
+    - name: issuer-not-ready
+      expression: "resource.reason == 'IssuerNotReady'"
+---
+# The user changed the Certificate requirements (e.g., switched from RSA to ECDSA), but the rotationPolicy prevents cert-manager from fixing it. The cert will never renew.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: cert-manager-rotation-blocked
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: manual-intervention-required
+      expression: "resource.reason == 'CannotRegenerateKey'"
+---
+# If Let's Encrypt is used, these indicate that the "handshake" with the CA is failing. This is usually due to DNS propagation issues or firewall blocks on the .well-known/acme-challenge path.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: cert-manager-acme-failure
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: challenge-present-error
+      expression: "resource.reason == 'PresentError'"
+    - name: challenge-failed
+      expression: "resource.reason == 'Failed' && resource.kind == 'Challenge'"
+---
+# If cert-manager can't read the existing CA keypair or the Secret contains garbage data, it cannot sign new certificates.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: cert-manager-secret-access-error
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: secret-data-invalid
+      expression: "resource.reason == 'SecretInvalidData' || resource.reason == 'ErrorParsingKey'"
+    - name: secret-get-error
+      expression: "resource.reason == 'SecretGetError' || resource.reason == 'ErrorGettingSecret'"
+{{- end }}

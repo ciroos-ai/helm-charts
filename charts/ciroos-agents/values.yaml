@@ -12,7 +12,7 @@ beacon:
   beacon:
     image:
       repository: registry.ciroos.ai/netra/beacon
-      tag: 1183861d0-dd16a601d-260309T1428Z
+      tag: 00d48859a-a19e43704-260419T1826Z
     resources:
       limits:
         cpu: 250m
@@ -42,7 +42,7 @@ ebpfTopoColl:
     useSysAdminCap: false
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-coll
-      tag: e0299ca08-52618fe41-260225T1856Z
+      tag: fb8ab271e-d3468a69c-260418T1709Z
     resources:
       limits:
         cpu: 250m
@@ -63,7 +63,7 @@ ebpfTopoReducer:
   ebpfTopoReducer:
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-reducer
-      tag: e0299ca08-77f9a88e5-260225T1856Z
+      tag: cb1a6d6d0-2b36b3d8e-260417T1439Z
     resources:
       limits:
         cpu: "1"
@@ -91,7 +91,7 @@ eventrouterController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/eventrouter-controller
-      tag: 06ccc0002-17f5206e7-260327T1049Z
+      tag: 2f356b608-2b36b3d8e-260417T1439Z
     resources:
       limits:
         cpu: 500m
@@ -116,7 +116,7 @@ eventrouterController:
     annotations: {}
 eventrouterGvks:
   alertUrl: http://vector-service:8993/k8s/alerts
-  dependencyEdgeUrl: http://vector-service:8992/k8s/relationships
+  dependencyEdgeUrl: http://vector-service:8998/k8s/relationships/v2
   eventUrl: http://vector-service:8991/v2/k8s/events
   heartbeatUrl: http://vector-service:8997/k8s/heartbeat
 kubernetesClusterDomain: cluster.local
@@ -124,7 +124,7 @@ otelCollector:
   otelCollector:
     image:
       repository: registry.ciroos.ai/netra/otelcollector
-      tag: 55aeaf463-95c9afbcc-260402T1317Z
+      tag: b980b4df3-2b36b3d8e-260417T1439Z
     resources:
       limits:
         cpu: 250m
@@ -150,7 +150,7 @@ sourceRepositoryWatcherController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/source-repository-watcher
-      tag: 7930def4b-49f4b2ec4-260227T1741Z
+      tag: 34c1f5cc4-2b36b3d8e-260417T1439Z
     resources:
       limits:
         cpu: 500m
@@ -182,7 +182,7 @@ vector:
       vectorLog: info
     image:
       repository: registry.ciroos.ai/netra/vector
-      tag: 3642f1780-4378e22ba-260309T1430Z
+      tag: cc08f82c7-2b36b3d8e-260417T1439Z
     resources:
       limits:
         cpu: "2"
