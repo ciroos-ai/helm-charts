@@ -36,6 +36,8 @@ Mandatory Agents (always deployed)
 │ beacon                 │ Agent heartbeat and cluster identity management                 │
 ├────────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ vector                 │ High-performance data pipeline for telemetry forwarding         │
+├────────────────────────┼─────────────────────────────────────────────────────────────────┤
+│ insight                │ Detect unused resources                                         │
 └────────────────────────┴─────────────────────────────────────────────────────────────────┘
 
 Optional Agents (can be disabled)
