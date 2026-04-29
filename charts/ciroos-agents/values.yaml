@@ -1,6 +1,6 @@
 namespaceScoped: false
 clusterNamespace: ""
-clusterName: ""
+clusterName: "cluster-name"
 ingressFqdn: ""
 ciroosIngressUrl: ""
 ciroosDockerconfigjson: ""
@@ -208,3 +208,31 @@ vector:
     runAsUser: 1000
     seccompProfile:
       type: RuntimeDefault
+insightController:
+  enabled: true
+  controller:
+    image:
+      repository: registry.ciroos.ai/netra/insight
+      tag: 878681d67-2ac8b99aa-260429T1528Z
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+  podSecurityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount:
+    annotations: {}
