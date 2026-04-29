@@ -1,6 +1,6 @@
 namespaceScoped: false
 clusterNamespace: ""
-clusterName: "cluster-name"
+clusterName: ""
 ingressFqdn: ""
 ciroosIngressUrl: ""
 ciroosDockerconfigjson: ""
@@ -12,7 +12,7 @@ beacon:
   beacon:
     image:
       repository: registry.ciroos.ai/netra/beacon
-      tag: 00d48859a-a19e43704-260419T1826Z
+      tag: d5f02432f-013b59ff0-260427T2309Z
     resources:
       limits:
         cpu: 250m
@@ -34,6 +34,8 @@ beacon:
     runAsUser: 1000
     seccompProfile:
       type: RuntimeDefault
+  impersonate: false
+  impersonatedServiceAccounts: []
 beaconSa:
   serviceAccount:
     annotations: {}
@@ -42,7 +44,7 @@ ebpfTopoColl:
     useSysAdminCap: false
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-coll
-      tag: fb8ab271e-d3468a69c-260418T1709Z
+      tag: fe83ce5c0-1a0ab3e12-260421T1423Z
     resources:
       limits:
         cpu: 250m
@@ -63,7 +65,7 @@ ebpfTopoReducer:
   ebpfTopoReducer:
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-reducer
-      tag: cb1a6d6d0-2b36b3d8e-260417T1439Z
+      tag: 85e0098b8-f8e66495e-260421T1147Z
     resources:
       limits:
         cpu: "1"
@@ -91,7 +93,7 @@ eventrouterController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/eventrouter-controller
-      tag: 2f356b608-2b36b3d8e-260417T1439Z
+      tag: edc60e52f-20ffd2832-260428T1548Z
     resources:
       limits:
         cpu: 500m
@@ -124,7 +126,7 @@ otelCollector:
   otelCollector:
     image:
       repository: registry.ciroos.ai/netra/otelcollector
-      tag: b980b4df3-2b36b3d8e-260417T1439Z
+      tag: 04331d0fa-f8e66495e-260421T1147Z
     resources:
       limits:
         cpu: 250m
@@ -150,7 +152,7 @@ sourceRepositoryWatcherController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/source-repository-watcher
-      tag: 34c1f5cc4-2b36b3d8e-260417T1439Z
+      tag: 09057bf3b-f8e66495e-260421T1147Z
     resources:
       limits:
         cpu: 500m
@@ -182,7 +184,7 @@ vector:
       vectorLog: info
     image:
       repository: registry.ciroos.ai/netra/vector
-      tag: cc08f82c7-2b36b3d8e-260417T1439Z
+      tag: caf9d71cd-f8e66495e-260421T1147Z
     resources:
       limits:
         cpu: "2"
