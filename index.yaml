@@ -2,6 +2,17 @@ apiVersion: v1
 entries:
   ciroos:
   - apiVersion: v2
+    appVersion: 0.3.0
+    created: "2026-04-29T12:51:49.803439792Z"
+    description: Deploys Sveltos applier with pre-generated cluster-specific configuration
+      for connecting a registered Kubernetes cluster to Ciroos
+    digest: 8f5149f6ab794ee04920dc46c2676223103e0cdd72c1697eaf007d783d18d126
+    name: ciroos
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-0.3.0/ciroos-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
     appVersion: 0.2.0
     created: "2026-04-03T13:12:28.478174693Z"
     description: Deploys Sveltos applier with pre-generated cluster-specific configuration
@@ -296,4 +307,4 @@ entries:
     urls:
     - https://github.com/ciroos-ai/helm-charts/releases/download/installer-0.1.0/installer-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-29T06:20:48.698912864Z"
+generated: "2026-04-29T12:51:49.803794047Z"
