@@ -55,12 +55,6 @@ ebpfTopoColl:
     containerSecurityContext:
   enabled: true
   podSecurityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
-    fsGroup: 1000
-    runAsNonRoot: true
-    seccompProfile:
-      type: Unconfined  # eBPF requires bpf() and perf_event_open() syscalls blocked by RuntimeDefault
 ebpfTopoReducer:
   ebpfTopoReducer:
     image:

@@ -33,21 +33,21 @@ spec:
         securityContext:
         {{- if (not .Values.ebpfTopoColl.ebpfTopoColl.containerSecurityContext) }}
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
           capabilities:
             drop:
               - ALL
             add:
               - NET_ADMIN
               - SYS_RESOURCE
-              - SYS_PTRACE
-              - DAC_READ_SEARCH
           {{- if .Values.ebpfTopoColl.ebpfTopoColl.useSysAdminCap }}
               - SYS_ADMIN
           {{- else }}
               - BPF
               - PERFMON
           {{- end }}
+          privileged: false
+          runAsUser: 0
+          runAsGroup: 0
         {{- else }}
           {{- toYaml .Values.ebpfTopoColl.ebpfTopoColl.containerSecurityContext
             | nindent 10 }}
