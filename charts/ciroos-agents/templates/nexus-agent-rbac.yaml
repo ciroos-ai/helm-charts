@@ -1,0 +1,34 @@
+{{- if .Values.nexusAgent.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: nexus-agent-controller-role
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+  name: nexus-agent-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: nexus-agent-controller-role
+subjects:
+- kind: ServiceAccount
+  name: nexus-agent-controller
+  namespace: '{{ .Release.Namespace }}'
+{{- end }}

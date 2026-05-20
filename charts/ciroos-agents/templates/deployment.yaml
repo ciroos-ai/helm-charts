@@ -495,3 +495,99 @@ spec:
       terminationGracePeriodSeconds: 10
       volumes: []
 {{- end }}
+---
+{{- if .Values.nexusAgent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: nexus-agent
+    control-plane: controller
+    {{- include "ciroos-agents.labels" . | nindent 4 }}
+  name: nexus-agent-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nexus-agent
+      control-plane: controller
+    {{- include "ciroos-agents.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: controller
+      labels:
+        app.kubernetes.io/name: nexus-agent
+        control-plane: controller
+        {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args:
+        - --v=0
+        command:
+        - /manager
+        env:
+        - name: TOTAL_MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.memory
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INGEST_URL
+          valueFrom:
+            configMapKeyRef:
+              key: CIROOS_INGRESS_URL
+              name: ciroos-agent-config
+        - name: CLUSTER_ID
+          valueFrom:
+            configMapKeyRef:
+              key: CLUSTER_ID
+              name: ciroos-agent-config
+        - name: ORGANIZATION_ID
+          valueFrom:
+            configMapKeyRef:
+              key: ORG_ID
+              name: ciroos-agent-config
+        image: {{ .Values.nexusAgent.controller.image.repository }}:{{ .Values.nexusAgent.controller.image.tag
+          | default .Chart.AppVersion }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: controller
+        ports: []
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources: {{- toYaml .Values.nexusAgent.controller.resources | nindent
+          10 }}
+        securityContext: {{- toYaml .Values.nexusAgent.controller.containerSecurityContext
+          | nindent 10 }}
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      imagePullSecrets:
+      - name: regcred
+      securityContext: {{- toYaml .Values.nexusAgent.podSecurityContext | nindent
+        8 }}
+      serviceAccountName: nexus-agent-controller
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir: {}
+        name: tmp
+{{- end }}

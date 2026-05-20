@@ -207,7 +207,7 @@ insightController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/insight
-      tag: 878681d67-2ac8b99aa-260429T1528Z
+      tag: 1028c75b4-fead401df-260520T0739Z 
     resources:
       limits:
         cpu: 500m
@@ -215,6 +215,34 @@ insightController:
       requests:
         cpu: 250m
         memory: 512Mi
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+  podSecurityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount:
+    annotations: {}
+nexusAgent:
+  enabled: false
+  controller:
+    image:
+      repository: registry.ciroos.ai/netra/nexus-agent
+      tag: 84fa4ff01-b5130db3c-260520T1435Z 
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 500m
+        memory: 256Mi
     containerSecurityContext:
       allowPrivilegeEscalation: false
       capabilities:
