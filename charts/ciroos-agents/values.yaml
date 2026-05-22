@@ -12,7 +12,7 @@ beacon:
   beacon:
     image:
       repository: registry.ciroos.ai/netra/beacon
-      tag: d5f02432f-013b59ff0-260427T2309Z
+      tag: 0a6f5d0f0-2f9951298-260521T1542Z
     resources:
       limits:
         cpu: 250m
