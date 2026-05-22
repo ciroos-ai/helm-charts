@@ -72,6 +72,8 @@ spec:
         - mountPath: /etc/certs
           name: ciroos-agent-cert
           readOnly: true
+        - name: data-dir
+          mountPath: /data
       imagePullSecrets:
       - name: regcred
       securityContext: {{- toYaml .Values.beacon.podSecurityContext | nindent
@@ -82,6 +84,8 @@ spec:
         secret:
           defaultMode: 420
           secretName: {{ .Values.clusterName }}-client-cert
+      - name: data-dir
+        emptyDir: {}
 ---
 apiVersion: apps/v1
 kind: Deployment

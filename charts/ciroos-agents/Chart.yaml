@@ -4,6 +4,6 @@ description: Deploys the Ciroos observability agent into your Kubernetes cluster
 
 type: application
 
-version: 0.3.9
+version: 0.3.10
 
 appVersion: "0.3.0"
