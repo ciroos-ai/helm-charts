@@ -1,0 +1,23 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: pod-sveltos-healthcheck-alert
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+  - expression: "resource.reason == 'sveltos'"
+    name: sveltos-events
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: pod-sveltos-healthcheck-alert
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+  - expression: "resource.reason == 'sveltos'"
+    name: sveltos-events
+{{- end }}

@@ -30,8 +30,9 @@ data:
         type: http_server
         address: 0.0.0.0:8991
         path: /v2/k8s/events
+        path_key: request_path
         method: POST
-        strict_path: true
+        strict_path: false
         response_code: 200
       k8s_pod_image_events:
         type: http_server
@@ -58,15 +59,28 @@ data:
         type: http_server
         address: 0.0.0.0:8998
         path: /k8s/relationships/v2
+        path_key: request_path
+        method: POST
+        strict_path: false
+        response_code: 200
+      insights_source:
+        type: http_server
+        address: 0.0.0.0:8999
+        path: /k8s/insights
         method: POST
         strict_path: true
         response_code: 200
+        framing:
+          method: newline_delimited
+        decoding:
+          codec: json
       k8s_alerts_source:
         type: http_server
         address: 0.0.0.0:8993
         path: /k8s/alerts
+        path_key: request_path
         method: POST
-        strict_path: true
+        strict_path: false
         response_code: 200
       ebpf_topology_source:
         type: http_server
@@ -96,8 +110,9 @@ data:
         type: http_server
         address: 0.0.0.0:8997
         path: /k8s/heartbeat
+        path_key: request_path
         method: POST
-        strict_path: true
+        strict_path: false
         response_code: 200
         framing:
           method: bytes
@@ -140,8 +155,10 @@ data:
         inputs:
           - k8s_v2_events_source
         source: |
+          request_path = .request_path
           message = parse_json!(.message)
           . = message
+          .cluster_id = replace(string!(request_path), r'^/v2/k8s/events/?', "")
           .event_data = .data
           del(.data)
           .create_timestamp = .creationTimestamp
@@ -157,8 +174,10 @@ data:
         inputs:
           - k8s_alerts_source
         source: |
+          request_path = .request_path
           message = parse_json!(.message)
           . = message
+          .cluster_id = replace(string!(request_path), r'^/k8s/alerts/?', "")
           .event_data = .data
           del(.data)
           .create_timestamp = .creationTimestamp
@@ -193,6 +212,7 @@ data:
           - k8s_relationships_v2_source
         source: |
           message = parse_json!(.message)
+          cluster_id = replace(string!(.request_path), r'^/k8s/relationships/v2/?', "")
           ts = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
           . = []
           for_each(array(message.edges) ?? []) -> |_index, edge| {
@@ -211,6 +231,7 @@ data:
               "to_namespace":          edge.to_namespace ||  "",
               "to_name":               edge.to_name ||  "",
               "event_seen_at":         ts,
+              "cluster_id":            cluster_id,
             })
           }
 
@@ -373,9 +394,21 @@ data:
         type: remap
         inputs: [k8s_heartbeat_source]
         source: |
+          request_path = .request_path
           message = parse_json!(.message)
           . = message
+          .cluster_id = replace(string!(request_path), r'^/k8s/heartbeat/?', "")
           .timestamp = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%S.%9f")
+      insights_enrich:
+        type: remap
+        inputs: [insights_source]
+        source: |
+          # tenant_id is always the owner of this Vector instance.
+          # cluster_id comes from the payload — emitters may proxy for remote clusters.
+          .tenant_id = get_env_var!("TENANT_ID")
+          if !exists(.cluster_id) || .cluster_id == null || .cluster_id == "" {
+            .cluster_id = get_env_var!("CLUSTER_ID")
+          }
     sinks:
       k8s_events_sink:
         inputs: [k8s_events]
@@ -623,6 +656,30 @@ data:
         type: http
         compression: gzip
         uri: https://{{ .Values.ingressFqdn }}/sink/k8s/relationships/v2
+        method: "post"
+        encoding:
+          codec: "json"
+        tls:
+          ca_file: /etc/certs/ca.crt
+          crt_file: /etc/certs/tls.crt
+          key_file: /etc/certs/tls.key
+        buffer:
+          when_full: drop_newest
+          max_events: 10000
+          type: memory
+        batch:
+          max_bytes: 1048576  # 1MB instead of default 10MB
+          max_events: 1000    # Limit events per batch
+          timeout_secs: 5     # Send batch after 5 seconds
+        request:
+          timeout_secs: 120   # Increase from 60s to 120s
+          retry_attempts: 5   # Explicit retry count
+          retry_max_duration_secs: 300  # Total retry duration
+      insights_sink:
+        inputs: [insights_enrich]
+        type: http
+        compression: gzip
+        uri: https://{{ .Values.ingressFqdn }}/sink/k8s/insights
         method: "post"
         encoding:
           codec: "json"
