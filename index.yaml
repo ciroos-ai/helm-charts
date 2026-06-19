@@ -110,6 +110,17 @@ entries:
   ciroos-agents:
   - apiVersion: v2
     appVersion: 0.3.0
+    created: "2026-06-19T11:47:23.064777251Z"
+    description: Deploys the Ciroos observability agent into your Kubernetes cluster
+      to provide comprehensive monitoring, event tracking, and network topology analysis.
+    digest: 248f719b8c40ff63087f45dc3c15541998d6305e93e18a2141cbeb9aa8e47b54
+    name: ciroos-agents
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-agents-0.3.11/ciroos-agents-0.3.11.tgz
+    version: 0.3.11
+  - apiVersion: v2
+    appVersion: 0.3.0
     created: "2026-05-22T06:15:42.219175321Z"
     description: Deploys the Ciroos observability agent into your Kubernetes cluster
       to provide comprehensive monitoring, event tracking, and network topology analysis.
@@ -362,4 +373,4 @@ entries:
     urls:
     - https://github.com/ciroos-ai/helm-charts/releases/download/installer-0.1.0/installer-0.1.0.tgz
     version: 0.1.0
-generated: "2026-05-22T06:15:42.219299169Z"
+generated: "2026-06-19T11:47:23.064942311Z"
