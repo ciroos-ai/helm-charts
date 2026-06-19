@@ -177,6 +177,7 @@ spec:
         - --configuration=eventrouter-gvks
         - --deploymentName=eventrouter-controller
         - --discard-managed-fields=true
+        - --cluster-id={{ .Values.clusterName }}
 {{- if .Values.namespaceScoped }}
         - --namespace-scoped=true
         - --enable-cluster-score=false
@@ -209,22 +210,18 @@ spec:
           httpGet:
             path: /healthz
             port: 8081
-            scheme: HTTP
-          initialDelaySeconds: 15
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 5
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 10
         name: controller
         readinessProbe:
-          failureThreshold: 3
+          failureThreshold: 10
           httpGet:
             path: /readyz
             port: 8081
-            scheme: HTTP
-          initialDelaySeconds: 5
+          initialDelaySeconds: 30
           periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 3
+          timeoutSeconds: 10
         resources: {{- toYaml .Values.eventrouterController.controller.resources | nindent
           10 }}
         securityContext: {{- toYaml .Values.eventrouterController.controller.containerSecurityContext
@@ -453,7 +450,11 @@ spec:
         - --v=0
 {{- if .Values.namespaceScoped }}
         - --namespace-scoped=true
+{{- else }}
+        - --namespace-scoped=false
 {{- end }}
+        - --cluster-id={{ .Values.clusterName }}
+        - --vector-url=http://vector-service:8999/k8s/insights
         command:
         - /manager
         env:
@@ -473,19 +474,23 @@ spec:
           | default .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
         livenessProbe:
+          failureThreshold: 5
           httpGet:
             path: /healthz
             port: 8081
-          initialDelaySeconds: 15
+          initialDelaySeconds: 30
           periodSeconds: 20
+          timeoutSeconds: 10
         name: controller
         ports: []
         readinessProbe:
+          failureThreshold: 10
           httpGet:
             path: /readyz
             port: 8081
-          initialDelaySeconds: 5
+          initialDelaySeconds: 30
           periodSeconds: 10
+          timeoutSeconds: 10
         resources: {{- toYaml .Values.insightController.controller.resources | nindent
           10 }}
         securityContext: {{- toYaml .Values.insightController.controller.containerSecurityContext
@@ -528,6 +533,7 @@ spec:
       containers:
       - args:
         - --v=0
+        - --disable-eventrouter-deployments=false
         command:
         - /manager
         env:
@@ -581,10 +587,6 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: tmp
-      securityContext:
-        runAsNonRoot: true
-        seccompProfile:
-          type: RuntimeDefault
       imagePullSecrets:
       - name: regcred
       securityContext: {{- toYaml .Values.nexusAgent.podSecurityContext | nindent

@@ -16,6 +16,7 @@ spec:
         app: ebpf-topo-coll
       {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
     spec:
+      hostPID: true
       containers:
       - env:
         - name: EBPF_TOPOLOGY_COLLECTOR_REDUCER_ADDR
@@ -101,12 +102,9 @@ spec:
               apiVersion: v1
               fieldPath: spec.nodeName
         - name: GOMEMLIMIT
-          valueFrom:
-            resourceFieldRef:
-              divisor: "0"
-              resource: limits.memory
+          value: {{ quote .Values.otelCollector.goMemLimit }}
         - name: GOGC
-          value: "50"
+          value: "off"
         - name: GOMAXPROCS
           valueFrom:
             resourceFieldRef:
