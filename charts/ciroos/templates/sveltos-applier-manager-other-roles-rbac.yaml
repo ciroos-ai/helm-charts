@@ -28,6 +28,7 @@ rules:
   - list
   - update
   - watch
+  - patch
 - apiGroups:
   - ""
   - events.k8s.io
@@ -44,3 +45,11 @@ rules:
   verbs:
   - patch
   - update
+# Required by Beacon deployment
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
