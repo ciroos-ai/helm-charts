@@ -8,11 +8,27 @@ metadata:
 rules:
 - apiGroups:
   - ""
-  - apps
-  - batch
-  - autoscaling
   resources:
-  - '*'
+  - pods
+  - namespaces
+  - nodes
+  verbs:
+  - list
+  - get
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes/stats
+  verbs:
+  - get
+- apiGroups:
+  - apps
+  resources:
+  - replicasets
+  - deployments
+  - daemonsets
+  - statefulsets
   verbs:
   - list
   - get

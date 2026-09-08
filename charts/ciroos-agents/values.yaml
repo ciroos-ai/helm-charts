@@ -36,6 +36,8 @@ beacon:
       type: RuntimeDefault
   impersonate: false
   impersonatedServiceAccounts: []
+  managePods: true
+  readAllResources: true
 beaconSa:
   serviceAccount:
     annotations: {}
