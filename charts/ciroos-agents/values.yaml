@@ -12,7 +12,7 @@ beacon:
   beacon:
     image:
       repository: registry.ciroos.ai/netra/beacon
-      tag: 36bae5519-6fb97227e-260616T1729Z
+      tag: c9ba72811-af2615a3f-260904T1544Z
     resources:
       limits:
         cpu: 250m
@@ -46,7 +46,7 @@ ebpfTopoColl:
     useSysAdminCap: false
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-coll
-      tag: 5d7dee2b6-8c59aa5fe-260608T1604Z
+      tag: d56b94234-af2615a3f-260904T1544Z
     resources:
       limits:
         cpu: 250m
@@ -61,7 +61,7 @@ ebpfTopoReducer:
   ebpfTopoReducer:
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-reducer
-      tag: 986abf9a2-98664185e-260608T1627Z
+      tag: fc2602b95-af2615a3f-260904T1544Z
     resources:
       limits:
         cpu: "1"
@@ -89,7 +89,7 @@ eventrouterController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/eventrouter-controller
-      tag: eca5886c5-7ba600819-260609T0955Z
+      tag: 5d3ab6959-958513134-260907T1321Z
     resources:
       limits:
         cpu: 500m
@@ -123,7 +123,7 @@ otelCollector:
   otelCollector:
     image:
       repository: registry.ciroos.ai/netra/otelcollector
-      tag: 162b8966f-362a371b0-260528T1703Z
+      tag: 089158c47-af2615a3f-260904T1544Z
     resources:
       limits:
         cpu: 250m
@@ -149,7 +149,7 @@ sourceRepositoryWatcherController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/source-repository-watcher
-      tag: 06865254d-fd6990674-260612T1505Z
+      tag: aaab7a9f2-af2615a3f-260904T1544Z
     resources:
       limits:
         cpu: 500m
@@ -181,7 +181,7 @@ vector:
       vectorLog: info
     image:
       repository: registry.ciroos.ai/netra/vector
-      tag: 6af8b0bca-d117f8820-260612T1850Z
+      tag: 52d091839-af2615a3f-260904T1544Z
     resources:
       limits:
         cpu: "2"
@@ -210,7 +210,7 @@ insightController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/insight
-      tag: 377e12249-184c0e30f-260616T1027Z
+      tag: e33478504-958513134-260907T1321Z
     resources:
       limits:
         cpu: 500m
@@ -238,7 +238,7 @@ nexusAgent:
   controller:
     image:
       repository: registry.ciroos.ai/netra/nexus-agent
-      tag: f349bb268-184c0e30f-260616T1027Z
+      tag: 8258bd1c2-af2615a3f-260904T1544Z
     resources:
       limits:
         cpu: 500m

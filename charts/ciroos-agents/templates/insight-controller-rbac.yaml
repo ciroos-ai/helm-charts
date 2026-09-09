@@ -1,4 +1,33 @@
 {{- if .Values.insightController.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: insight-controller-secrets
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: insight-controller-secrets
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: insight-controller-secrets
+subjects:
+- kind: ServiceAccount
+  name: insight-controller
+  namespace: '{{ .Release.Namespace }}'
+---
 {{- if .Values.namespaceScoped }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -34,6 +63,22 @@ rules:
   - create
   - patch
   - update
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - get
+  - list
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -84,6 +129,22 @@ rules:
   - create
   - patch
   - update
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - get
+  - list
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

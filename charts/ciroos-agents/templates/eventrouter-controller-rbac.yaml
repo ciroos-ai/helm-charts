@@ -77,9 +77,59 @@ rules:
   - list
   - watch
 - apiGroups:
-  - '*'
+  - ""
   resources:
-  - '*'
+  - endpoints
+  - namespaces
+  - nodes
+  - persistentvolumeclaims
+  - persistentvolumeclaims/status
+  - pods
+  - pods/status
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - deployments
+  - replicasets
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates
+  - issuers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - projectcontour.io
+  resources:
+  - httpproxies
   verbs:
   - get
   - list
@@ -122,4 +172,82 @@ rules:
   - get
   - patch
   - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: eventrouter-config-events-role
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: eventrouter-config-events-rolebinding
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: eventrouter-config-events-role
+subjects:
+- kind: ServiceAccount
+  name: 'eventrouter-controller'
+  namespace: '{{ .Release.Namespace }}'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: eventrouter-secrets-role
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: eventrouter-secrets-rolebinding
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: eventrouter-secrets-role
+subjects:
+- kind: ServiceAccount
+  name: 'eventrouter-controller'
+  namespace: '{{ .Release.Namespace }}'
 {{- end }}
