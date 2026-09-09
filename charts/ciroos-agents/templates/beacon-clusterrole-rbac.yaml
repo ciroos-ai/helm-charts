@@ -11,11 +11,14 @@ rules:
   resources:
   - pods
   verbs:
-  - create
   - get
   - list
   - watch
+  {{- if .Values.beacon.managePods }}
+  - create
   - delete
+  {{- end }}
+{{- if .Values.beacon.readAllResources }}
 - apiGroups:
   - '*'
   resources:
@@ -24,6 +27,7 @@ rules:
   - get
   - list
   - watch
+{{- end }}
 {{- if .Values.beacon.impersonate }}
 - apiGroups:
   - ""
@@ -49,11 +53,14 @@ rules:
   resources:
   - pods
   verbs:
-  - create
   - get
   - list
   - watch
+  {{- if .Values.beacon.managePods }}
+  - create
   - delete
+  {{- end }}
+{{- if .Values.beacon.readAllResources }}
 - apiGroups:
   - '*'
   resources:
@@ -62,6 +69,7 @@ rules:
   - get
   - list
   - watch
+{{- end }}
 {{- if .Values.beacon.impersonate }}
 - apiGroups:
   - ""
