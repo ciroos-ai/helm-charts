@@ -1,0 +1,64 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: workloadsources.source.ciroos.ai
+spec:
+  group: source.ciroos.ai
+  scope: Namespaced
+  names:
+    kind: WorkloadSource
+    listKind: WorkloadSourceList
+    plural: workloadsources
+    singular: workloadsource
+    shortNames:
+      - wlsrc
+  versions:
+    - name: v1beta1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          description: The source repositories a Kubernetes workload is built from.
+          properties:
+            spec:
+              type: object
+              required:
+                - workloadRef
+                - repositories
+              properties:
+                workloadRef:
+                  type: object
+                  description: The workload in this namespace that these repositories build.
+                  required:
+                    - kind
+                    - name
+                  properties:
+                    kind:
+                      type: string
+                      description: Workload kind, e.g. Deployment, StatefulSet, DaemonSet.
+                    name:
+                      type: string
+                      description: Workload name, as it appears in the cluster.
+                repositories:
+                  type: array
+                  description: Repositories this workload is built from.
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - url
+                    properties:
+                      url:
+                        type: string
+                        description: Repository URL, e.g. https://github.com/acme/orders
+                      commitSha:
+                        type: string
+                        description: The commit deployed from this repository.
+      additionalPrinterColumns:
+        - name: Workload
+          type: string
+          jsonPath: .spec.workloadRef.name
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
