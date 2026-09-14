@@ -2,22 +2,22 @@
 apiVersion: lib.ciroos.ai/v1beta1
 kind: NamespacedAlert
 metadata:
-  name: critical-event-alert
+  name: pod-sandbox-creation-error-alert
   labels:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   matchRules:
-  - expression: resource.reason in ['CreateContainerError']
-    name: critical-pod-events
+    - name: failed-create-pod-sandbox
+      expression: "resource.reason == 'FailedCreatePodSandBox'"
 {{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
 kind: Alert
 metadata:
-  name: critical-event-alert
+  name: pod-sandbox-creation-error-alert
   labels:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   matchRules:
-  - expression: resource.reason in ['CreateContainerError']
-    name: critical-pod-events
+    - name: failed-create-pod-sandbox
+      expression: "resource.reason == 'FailedCreatePodSandBox'"
 {{- end }}
