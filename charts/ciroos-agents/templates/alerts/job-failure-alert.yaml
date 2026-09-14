@@ -1,0 +1,23 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: job-failure-alert
+spec:
+  matchRules:
+    - name: job-backoff-limit-exceeded
+      expression: "resource.reason == 'BackoffLimitExceeded' && resource.involvedObject.kind == 'Job'"
+    - name: job-deadline-exceeded
+      expression: "resource.reason == 'DeadlineExceeded' && resource.involvedObject.kind == 'Job'"
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: job-failure-alert
+spec:
+  matchRules:
+    - name: job-backoff-limit-exceeded
+      expression: "resource.reason == 'BackoffLimitExceeded' && resource.involvedObject.kind == 'Job'"
+    - name: job-deadline-exceeded
+      expression: "resource.reason == 'DeadlineExceeded' && resource.involvedObject.kind == 'Job'"
+{{- end }}
