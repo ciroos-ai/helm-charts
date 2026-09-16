@@ -1,0 +1,19 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: deployment-progress-deadline-exceeded-alert
+spec:
+  matchRules:
+    - name: deployment-progress-deadline-exceeded
+      expression: "resource.reason == 'ProgressDeadlineExceeded' && resource.involvedObject.kind == 'Deployment'"
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: deployment-progress-deadline-exceeded-alert
+spec:
+  matchRules:
+    - name: deployment-progress-deadline-exceeded
+      expression: "resource.reason == 'ProgressDeadlineExceeded' && resource.involvedObject.kind == 'Deployment'"
+{{- end }}
