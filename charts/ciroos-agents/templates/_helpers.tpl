@@ -112,4 +112,12 @@ and every core resource except Secrets, for use when beacon.readAllResources is 
   - get
   - list
   - watch
+- apiGroups:
+  - source.ciroos.ai
+  resources:
+  - workloadsources
+  verbs:
+  - get
+  - list
+  - watch
 {{- end }}
