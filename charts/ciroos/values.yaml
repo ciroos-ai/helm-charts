@@ -19,6 +19,13 @@ sveltosApplierManager:
   labels: {}
   tolerations: []
   nodeSelector: {}
+  # When true, sveltos-applier-manager-read-permission grants cluster-wide
+  # read (get/list/watch) on every apiGroup/resource, including Secrets.
+  # Set to false to restrict it to a curated list of apiGroups/resources
+  # (see ciroos.sveltosApplierReadRules in _helpers.tpl) that excludes
+  # Secrets but must stay a superset of every ClusterRole/Role
+  # sveltos-applier-manager installs on the managed cluster.
+  readAllResources: true
   controller:
     containerSecurityContext:
       allowPrivilegeEscalation: false
@@ -29,7 +36,7 @@ sveltosApplierManager:
         type: RuntimeDefault
     image:
       repository: registry.ciroos.ai/runtime/projectsveltos/sveltos-applier
-      tag: 1.6.0-43a361a002de
+      tag: 1.13.0-fbc287b5eb63
     resources:
       limits:
         cpu: 500m
