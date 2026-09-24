@@ -62,26 +62,10 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Read-only RBAC rules granting beacon visibility into apps and batch workloads,
-and every core resource except Secrets, for use when beacon.readAllResources is disabled.
+Read-only RBAC rules granting beacon visibility into workloads and cluster
+config, for use when beacon.readAllResources is disabled. Excludes Secrets.
 */}}
 {{- define "ciroos-agents.beaconReadRules" -}}
-- apiGroups:
-  - apps
-  resources:
-  - '*'
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - batch
-  resources:
-  - '*'
-  verbs:
-  - get
-  - list
-  - watch
 - apiGroups:
   - ""
   resources:
@@ -97,6 +81,7 @@ and every core resource except Secrets, for use when beacon.readAllResources is 
   - persistentvolumeclaims/status
   - persistentvolumes
   - persistentvolumes/status
+  - pods
   - pods/log
   - pods/status
   - podtemplates
@@ -108,6 +93,20 @@ and every core resource except Secrets, for use when beacon.readAllResources is 
   - serviceaccounts
   - services
   - services/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  - batch
+  - extensions
+  - networking.k8s.io
+  - storage.k8s.io
+  - rbac.authorization.k8s.io
+  - apiextensions.k8s.io
+  resources:
+  - "*"
   verbs:
   - get
   - list

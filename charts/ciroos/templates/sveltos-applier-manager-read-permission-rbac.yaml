@@ -5,6 +5,7 @@ metadata:
   labels:
   {{- include "ciroos.labels" . | nindent 4 }}
 rules:
+{{- if .Values.sveltosApplierManager.readAllResources }}
 - apiGroups:
   - '*'
   resources:
@@ -13,3 +14,6 @@ rules:
   - get
   - list
   - watch
+{{- else }}
+{{ include "ciroos.sveltosApplierReadRules" . }}
+{{- end }}

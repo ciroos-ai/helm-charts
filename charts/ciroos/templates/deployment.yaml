@@ -55,6 +55,9 @@ spec:
         - --secret-with-kubeconfig=pullmode-secret
         - --v=5
         - --version=pull-mode
+        {{- if not .Values.sveltosApplierManager.readAllResources }}
+        - --watch-namespaces=ciroos-agent,projectsveltos
+        {{- end }}
         command:
         - /manager
         env:
