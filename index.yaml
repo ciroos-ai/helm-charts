@@ -3,6 +3,17 @@ entries:
   ciroos:
   - apiVersion: v2
     appVersion: 0.3.0
+    created: "2026-09-24T13:36:48.07301152Z"
+    description: Deploys Sveltos applier with pre-generated cluster-specific configuration
+      for connecting a registered Kubernetes cluster to Ciroos
+    digest: 3333f75c20247b20e57a83bedbd8246d7f5be91c77e9bd3d06c57ef77ab73d09
+    name: ciroos
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-0.3.3/ciroos-0.3.3.tgz
+    version: 0.3.3
+  - apiVersion: v2
+    appVersion: 0.3.0
     created: "2026-07-23T11:24:57.006729074Z"
     description: Deploys Sveltos applier with pre-generated cluster-specific configuration
       for connecting a registered Kubernetes cluster to Ciroos
@@ -130,6 +141,17 @@ entries:
     - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-0.1.1/ciroos-0.1.1.tgz
     version: 0.1.1
   ciroos-agents:
+  - apiVersion: v2
+    appVersion: 0.3.0
+    created: "2026-09-24T13:36:48.260057325Z"
+    description: Deploys the Ciroos observability agent into your Kubernetes cluster
+      to provide comprehensive monitoring, event tracking, and network topology analysis.
+    digest: 4e14483335b2394e9d134bbe9975b96c836d5ee554010d0be0ea33b3bd4c9f55
+    name: ciroos-agents
+    type: application
+    urls:
+    - https://github.com/ciroos-ai/helm-charts/releases/download/ciroos-agents-0.3.17/ciroos-agents-0.3.17.tgz
+    version: 0.3.17
   - apiVersion: v2
     appVersion: 0.3.0
     created: "2026-09-14T19:46:10.804436164Z"
@@ -450,4 +472,4 @@ entries:
     urls:
     - https://github.com/ciroos-ai/helm-charts/releases/download/installer-0.1.0/installer-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-14T19:46:10.804618343Z"
+generated: "2026-09-24T13:36:48.260353418Z"
