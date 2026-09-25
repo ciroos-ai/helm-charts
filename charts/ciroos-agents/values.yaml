@@ -1,4 +1,11 @@
 namespaceScoped: false
+# Extra cluster-wide RBAC rules, empty by default. Granted to beacon via the
+# beacon-extra-permission ClusterRole/ClusterRoleBinding (independent of
+# namespaceScoped, since this is always meant to be cluster-wide), for
+# anything the curated beacon.readAllResources:false rule set
+# (ciroos-agents.beaconReadRules) doesn't cover. There is no sveltos here to
+# also grant this to, unlike the managed ciroos chart.
+extraClusterRoleRules: []
 clusterNamespace: ""
 clusterName: "cluster-name"
 ingressFqdn: ""

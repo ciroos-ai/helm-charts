@@ -114,6 +114,41 @@ helm repo update
 helm install ciroos ciroos/ciroos --create-namespace -n projectsveltos  -f /tmp/values.yaml
 ```
 
+#### RBAC Hardening
+
+By default, `sveltos-applier-manager` is granted `get/list/watch` on every resource in the cluster (`apiGroups: ['*'], resources: ['*']`), which implicitly includes cluster-wide read access to Secrets. If your security posture does not allow this, set:
+
+```yaml
+sveltosApplierManager:
+  readAllResources: false
+```
+
+This curates `sveltos-applier-manager-read-permission` down to a fixed list of resources that excludes Secrets (see `ciroos.sveltosApplierReadRules` in `charts/ciroos/templates/_helpers.tpl`). `sveltos-applier-manager` is also the actor that installs `beacon`'s own RBAC on the managed cluster, so Kubernetes' RBAC self-escalation check requires it to hold at least whatever it grants beacon — if you also set `beacon.readAllResources: false` in your `ciroos-agents` values, keep this curated list a superset of beacon's.
+
+##### Example: granting extra cluster-wide RBAC
+
+If the curated rules above don't cover something you need (a CRD, a resource type not on the list, etc.), use `extraClusterRoleRules` instead of turning `readAllResources` back on:
+
+```yaml
+# values.yaml
+extraClusterRoleRules:
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - volumesnapshots
+  - volumesnapshotcontents
+  verbs:
+  - get
+  - list
+  - watch
+```
+
+`extraClusterRoleRules` is empty by default (no-op). When set, the chart creates a `ciroos-extra-permission` ClusterRole with these rules and a `ciroos-extra-binding` ClusterRoleBinding that grants it to both:
+- `sveltos-applier-manager` (namespace `projectsveltos`) — required for the same self-escalation reason as above
+- `beacon-sa` (namespace `ciroos-agent`) — the actual consumer of the extra permissions
+
+Verify what's granted with `kubectl get clusterrolebinding ciroos-extra-binding -o yaml` after install/upgrade.
+
 ### installer helm chart
 
 Prepare values.yaml. Following fields must be set
