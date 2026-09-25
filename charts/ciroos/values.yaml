@@ -58,3 +58,11 @@ sveltosApplierMetricsService:
     protocol: TCP
     targetPort: 8443
   type: ClusterIP
+# Extra cluster-wide RBAC rules, empty by default. Granted to both
+# sveltos-applier-manager and beacon (in the ciroos-agent namespace) via the
+# ciroos-extra-permission ClusterRole/ClusterRoleBinding, for anything the
+# curated readAllResources:false rule sets (ciroos.sveltosApplierReadRules,
+# ciroos-agents.beaconReadRules) don't cover. sveltos-applier-manager is the
+# one that installs beacon's RBAC, so it must also hold these rules or
+# Kubernetes' RBAC self-escalation check will reject the grant.
+extraClusterRoleRules: []

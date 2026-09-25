@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: beacon-extra-permission
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+rules:
+{{- toYaml (.Values.extraClusterRoleRules | default list) | nindent 2 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: beacon-extra-binding
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'beacon-extra-permission'
+subjects:
+- kind: ServiceAccount
+  name: 'beacon-sa'
+  namespace: '{{ .Release.Namespace }}'

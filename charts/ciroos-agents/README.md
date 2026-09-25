@@ -113,6 +113,20 @@ subjects:
 
 Trim the resource list above to whatever your investigations actually need — none of it is required by beacon to start up or send heartbeats; it only affects what beacon can describe/inspect during an investigation.
 
+### Example: granting extra RBAC through the chart
+
+Instead of creating the `ClusterRole`/`ClusterRoleBinding` above by hand, you can supply the same rules through the chart itself:
+
+```yaml
+# values.yaml
+extraClusterRoleRules:
+- apiGroups: [""]
+  resources: ["services", "endpoints", "configmaps", "persistentvolumeclaims", "persistentvolumes", "nodes", "serviceaccounts"]
+  verbs: ["get", "list", "watch"]
+```
+
+`extraClusterRoleRules` is empty by default (no-op) and independent of `namespaceScoped` — it's always cluster-wide. When set, the chart creates a `beacon-extra-permission` ClusterRole with these rules and a `beacon-extra-binding` ClusterRoleBinding granting it to `beacon-sa` in the release namespace. This is the preferred way to extend beacon's permissions when `beacon.readAllResources: false` doesn't cover everything you need, without maintaining a separate manifest outside the chart.
+
 beacon also creates and deletes Pods by default (for diagnostics). To remove that permission as well:
 
 beacon:
