@@ -45,7 +45,9 @@ rules:
   verbs:
   - patch
   - update
-# Required by Beacon deployment
+{{- if .Values.sveltosApplierManager.readAllResources }}
+# Required by Beacon deployment when it manages pods. Omitted with restricted
+# RBAC (readAllResources: false), where beacon only gets read access to pods.
 - apiGroups:
   - ""
   resources:
@@ -53,3 +55,4 @@ rules:
   verbs:
   - create
   - delete
+{{- end }}
