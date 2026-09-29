@@ -56,9 +56,11 @@ resource it needs to deploy/update on a managed cluster (agents, RBAC
 objects, CRDs), minus Secrets, for use when sveltosApplierManager.readAllResources
 is disabled. sveltos-applier-manager must itself hold get/list/watch on
 everything any ClusterRole/Role it installs (e.g. sveltos-agent-manager-role,
-drift-detection-manager-role, beacon-clusterrole, eventrouter-controller-role)
-grants for read, or Kubernetes' RBAC self-escalation check rejects the write —
-keep this list a superset of those roles' read rules.
+drift-detection-manager-role, beacon-clusterrole, eventrouter-controller-role,
+insight-controller-role) grants for read, or Kubernetes' RBAC self-escalation
+check rejects the write — keep this list a superset of those roles' read
+rules. `autoscaling` is required for insight-controller's HPA
+scaling-limited detector (horizontalpodautoscalers).
 */}}
 {{- define "ciroos.sveltosApplierReadRules" -}}
 - apiGroups:
@@ -105,6 +107,7 @@ keep this list a superset of those roles' read rules.
   - cert-manager.io
   - projectcontour.io
   - events.k8s.io
+  - autoscaling
   resources:
   - "*"
   verbs:
