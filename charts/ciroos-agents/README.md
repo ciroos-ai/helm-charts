@@ -51,6 +51,8 @@ Optional Agents (can be disabled)
 
 RBAC Hardening
 
+On clusters managed through the `ciroos` chart, beacon's permissions are chosen by Ciroos: they are restricted when your organization has the `restricted_rbac: true` policy (see [Restricted RBAC](../ciroos/README.md#restricted-rbac)). The option below applies when you install this chart directly.
+
 By default, beacon is granted `get/list/watch` on every resource in the cluster (`apiGroups: ['*'], resources: ['*']`), which implicitly includes cluster-wide read access to Secrets. If your security posture does not allow this, set:
 
 # values.yaml
@@ -58,6 +60,23 @@ beacon:
   readAllResources: false
 
 Disabling this flag removes the wildcard rule entirely, so beacon can no longer read Secrets (or any resource type) cluster-wide. Beacon retains `get/list/watch` on pods only. Any beacon feature that relies on reading other resource types (e.g. Deployments, Nodes, NetworkPolicies) will lose visibility into those resources when this flag is disabled. **It is then the user's responsibility to grant beacon whichever additional RBAC it needs to run investigations** — the chart will not do this for you once the wildcard is turned off.
+
+> **Also disable `sourceRepositoryWatcherController` when you restrict RBAC.** The source repository watcher needs
+> cluster-wide `get/list/watch` on **Secrets** (Argo CD and Flux keep their repository credentials and cluster
+> registrations in Secrets), plus access to the Argo CD and Flux source resources. Restricted RBAC can't grant that, so
+> leaving the controller enabled either defeats the purpose of the restriction or, when the installer doesn't hold those
+> permissions, makes the install fail Kubernetes' RBAC self-escalation check. Set both:
+>
+> ```yaml
+> # values.yaml
+> beacon:
+>   readAllResources: false
+> sourceRepositoryWatcherController:
+>   enabled: false
+> ```
+>
+> On clusters managed through the `ciroos` chart, Ciroos skips the source repository watcher for you when the
+> organization has the `restricted_rbac: true` policy.
 
 ### Example: granting beacon investigation permissions manually
 
