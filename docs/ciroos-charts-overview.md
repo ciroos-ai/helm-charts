@@ -69,7 +69,9 @@ cluster**:
 
 The onboarding controller then returns a kubeconfig (user `sveltos-applier`) pointing at the control cluster API server.
 That kubeconfig is what you pass to the `ciroos` chart as `pullmodeSecret.kubeconfig`, where it becomes the
-`pullmode-secret` Secret mounted by the applier (`--secret-with-kubeconfig=pullmode-secret`).
+`pullmode-secret` Secret read by the applier (`--secret-with-kubeconfig=pullmode-secret`). The Secret's name and key
+come from `pullmodeSecret.name` and `pullmodeSecret.key` (defaults `pullmode-secret` / `policy0`), which Ciroos sets in
+the generated values for clusters with short-lived tokens (see below).
 
 ### What the per-cluster identity can do on the control cluster
 
@@ -107,10 +109,17 @@ read or change anything else.
 **Token renewal is an organization policy, not a chart setting.** It is controlled by the `renew_token` policy on your
 Ciroos organization (default `false`). When a cluster is registered, Ciroos reads the policy and decides which kind of
 token goes into the kubeconfig. The `ciroos` and `installer` charts have no value for it, because the token is already
-baked into the kubeconfig (`pullmodeSecret.kubeconfig`) that Ciroos generates. To use short-lived tokens, ask Ciroos to
+baked into the kubeconfig (`pullmodeSecret.kubeconfig`) that Ciroos generates. For a cluster registered with short-lived
+tokens, the generated values also set `pullmodeSecret.name` (`<cluster name>-sveltos-kubeconfig`) and
+`pullmodeSecret.key` (`kubeconfig`): that is the Secret `sc-manager` writes each renewed kubeconfig into, and the one
+the applier reads, so the renewals are picked up. Do not edit them. To use short-lived tokens, ask Ciroos to
 enable `renew_token` for your organization and then register the cluster, or re-register an existing one, to get a
 kubeconfig that carries a renewable token. Changing the policy doesn't change the token of a cluster that is already
 registered.
+
+**Avoid re-running `helm upgrade` with the kubeconfig from the original values of a cluster that uses short-lived
+tokens.** The chart owns the Secret, so Helm may write that (by then expired) kubeconfig over the renewed one and the
+applier would lose access. To refresh the registration, register the cluster again and use the newly generated values.
 
 ### What the applier does with this access
 

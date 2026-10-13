@@ -12,7 +12,7 @@ registration with reusable project-level credentials, see the `installer` chart 
 | Resource | Purpose |
 |---|---|
 | `sveltos-applier-manager` Deployment (namespace `projectsveltos`) | Runs in pull mode: connects **outbound** to the Ciroos control cluster and applies the resources Ciroos has selected for this cluster. The control cluster never needs inbound access to yours. |
-| `pullmode-secret` Secret | Kubeconfig the applier uses to reach the Ciroos control cluster. |
+| `pullmode-secret` Secret (name set by `pullmodeSecret.name`) | Kubeconfig the applier uses to reach the Ciroos control cluster. |
 | RBAC for the applier | What the applier may read and write locally (see [Restricted RBAC](#restricted-rbac)). |
 | `ciroos-agent` Namespace | Where the Ciroos agents are deployed. |
 | Uninstaller Job | Runs on `helm delete` and removes what Ciroos deployed to the cluster. |

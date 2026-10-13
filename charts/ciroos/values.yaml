@@ -3,6 +3,13 @@ clusterName: ""
 kubernetesClusterDomain: cluster.local
 pullmodeSecret:
   kubeconfig: ""
+  # Name and data key of the Secret holding the kubeconfig the applier uses to reach the Ciroos
+  # control cluster (--secret-with-kubeconfig points at it). Ciroos generates these values with
+  # the rest of the file: for clusters registered with short-lived, auto-renewed tokens they are
+  # the Secret and key the renewal writes into, so renewed kubeconfigs are picked up by the
+  # applier. Leave the defaults otherwise.
+  name: pullmode-secret
+  key: policy0
 uninstaller:
   annotations: {}
   labels: {}
