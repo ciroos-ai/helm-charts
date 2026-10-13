@@ -69,7 +69,10 @@ cluster**:
 
 The onboarding controller then returns a kubeconfig (user `sveltos-applier`) pointing at the control cluster API server.
 That kubeconfig is what you pass to the `ciroos` chart as `pullmodeSecret.kubeconfig`, where it becomes the
-`pullmode-secret` Secret mounted by the applier (`--secret-with-kubeconfig=pullmode-secret`).
+`pullmode-secret` Secret read by the applier (`--secret-with-kubeconfig=pullmode-secret`). The Secret's name and key
+come from `pullmodeSecret.name` and `pullmodeSecret.key` (defaults `pullmode-secret` / `policy0`). Ciroos sets them in
+the generated values when your organization has the `restricted_rbac: true` policy (see
+[6. Configuring restricted RBAC](#6-configuring-restricted-rbac)). Do not edit them.
 
 ### What the per-cluster identity can do on the control cluster
 
@@ -257,7 +260,7 @@ Restricted RBAC has two parts that work together.
 
 | Setting | Where | Effect |
 |---|---|---|
-| `restricted_rbac: true` | Ciroos, organization policy (ask Ciroos to enable it) | Ciroos deploys `beacon` with curated, Secret-free read rules and skips `source-repository-watcher-controller`. |
+| `restricted_rbac: true` | Ciroos, organization policy (ask Ciroos to enable it) | Ciroos deploys `beacon` with curated, Secret-free read rules and skips `source-repository-watcher-controller`. The generated values also set `pullmodeSecret.name`/`key`. |
 | `sveltosApplierManager.readAllResources: false` | `ciroos` chart values | The applier's own read permission becomes a curated list without Secrets, it loses `create`/`delete` on pods, and it only watches `ciroos-agent` and `projectsveltos`. |
 
 **`readAllResources: false` can only be set when your organization already has the `restricted_rbac: true` policy.**
