@@ -68,7 +68,7 @@ ebpfTopoReducer:
   ebpfTopoReducer:
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-reducer
-      tag: fc2602b95-af2615a3f-260904T1544Z
+      tag: 6a96739d3-42b9dc9b0-261014T1243Z
     resources:
       limits:
         cpu: "1"
