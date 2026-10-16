@@ -126,3 +126,19 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Name of the Secret holding the kubeconfig the applier uses to reach the Ciroos control cluster.
+Defaults apply when the value is missing, e.g. on an upgrade with --reuse-values from a release
+installed before pullmodeSecret.name existed.
+*/}}
+{{- define "ciroos.pullmodeSecretName" -}}
+{{- default "pullmode-secret" .Values.pullmodeSecret.name -}}
+{{- end }}
+
+{{/*
+Data key, in that Secret, holding the kubeconfig.
+*/}}
+{{- define "ciroos.pullmodeSecretKey" -}}
+{{- default "policy0" .Values.pullmodeSecret.key -}}
+{{- end }}
