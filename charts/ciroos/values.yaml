@@ -3,6 +3,11 @@ clusterName: ""
 kubernetesClusterDomain: cluster.local
 pullmodeSecret:
   kubeconfig: ""
+  # Name and data key of the Secret holding the kubeconfig the applier uses to reach the Ciroos
+  # control cluster (--secret-with-kubeconfig points at it). Ciroos sets these in the generated
+  # values when the organization has the restricted_rbac policy. Leave the defaults otherwise.
+  name: pullmode-secret
+  key: policy0
 uninstaller:
   annotations: {}
   labels: {}
@@ -13,7 +18,7 @@ uninstaller:
       - --skip-projectsveltos=false
     image:
       repository: registry.ciroos.ai/ciroos/uninstaller
-      tag: bfd285221-2974753e1-260402T1435Z
+      tag: b6ae155c2-68553a528-261003T1216Z
 sveltosApplierManager:
   annotations: {}
   labels: {}

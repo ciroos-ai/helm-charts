@@ -52,7 +52,7 @@ spec:
         - --cluster-namespace={{ .Values.clusterNamespace }}
         - --cluster-name={{ .Values.clusterName }}
         - --cluster-type=Sveltos
-        - --secret-with-kubeconfig=pullmode-secret
+        - --secret-with-kubeconfig={{ include "ciroos.pullmodeSecretName" . }}
         - --v=5
         - --version=pull-mode
         {{- if not .Values.sveltosApplierManager.readAllResources }}

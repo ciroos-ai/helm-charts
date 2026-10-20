@@ -12,7 +12,7 @@ registration with reusable project-level credentials, see the `installer` chart 
 | Resource | Purpose |
 |---|---|
 | `sveltos-applier-manager` Deployment (namespace `projectsveltos`) | Runs in pull mode: connects **outbound** to the Ciroos control cluster and applies the resources Ciroos has selected for this cluster. The control cluster never needs inbound access to yours. |
-| `pullmode-secret` Secret | Kubeconfig the applier uses to reach the Ciroos control cluster. |
+| `pullmode-secret` Secret (name set by `pullmodeSecret.name`) | Kubeconfig the applier uses to reach the Ciroos control cluster. |
 | RBAC for the applier | What the applier may read and write locally (see [Restricted RBAC](#restricted-rbac)). |
 | `ciroos-agent` Namespace | Where the Ciroos agents are deployed. |
 | Uninstaller Job | Runs on `helm delete` and removes what Ciroos deployed to the cluster. |
@@ -79,7 +79,7 @@ value** in this chart:
 
 | Setting | Where it is set | What it controls |
 |---|---|---|
-| `restricted_rbac: true` | Ciroos, at the organization level | What **Ciroos deploys** to your clusters: `beacon` gets curated read permissions and `source-repository-watcher-controller` is not deployed. |
+| `restricted_rbac: true` | Ciroos, at the organization level | What **Ciroos deploys** to your clusters: `beacon` gets curated read permissions and `source-repository-watcher-controller` is not deployed. The generated values also set `pullmodeSecret.name`/`key`. |
 | `sveltosApplierManager.readAllResources: false` | This chart's values | The **applier's own permissions**, installed by this chart: curated read access that excludes Secrets, and no `create`/`delete` on pods. |
 
 **The Helm value can only be set when the organization has the `restricted_rbac: true` policy.** The chart can't turn

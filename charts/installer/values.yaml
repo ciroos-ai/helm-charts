@@ -38,4 +38,4 @@ uninstaller:
       - --skip-projectsveltos=false
     image:
       repository: registry.ciroos.ai/ciroos/uninstaller
-      tag: bfd285221-2974753e1-260402T1435Z
+      tag: b6ae155c2-68553a528-261003T1216Z
