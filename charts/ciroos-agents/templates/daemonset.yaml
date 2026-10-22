@@ -131,6 +131,7 @@ spec:
       - name: regcred
       securityContext: {{- toYaml .Values.otelCollector.podSecurityContext | nindent
         8 }}
+      serviceAccountName: otelcollector
       volumes:
       - configMap:
           defaultMode: 420
