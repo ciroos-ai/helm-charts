@@ -19,7 +19,7 @@ beacon:
   beacon:
     image:
       repository: registry.ciroos.ai/netra/beacon
-      tag: c9ba72811-af2615a3f-260904T1544Z
+      tag: 9d047f758-0704fac0f-261027T1950Z@sha256:986feaf3ac94bc705ce637dbc0812224851e6a487adda18eb71ec40a747fbf95
     resources:
       limits:
         cpu: 250m
@@ -53,7 +53,7 @@ ebpfTopoColl:
     useSysAdminCap: false
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-coll
-      tag: d56b94234-af2615a3f-260904T1544Z
+      tag: f2f68cbbb-c48010ac0-261028T0833Z@sha256:c876457a5a29bc8607e0c39873b6240957ff6ef1d0d47631be325413345251cf
     resources:
       limits:
         cpu: 250m
@@ -68,7 +68,7 @@ ebpfTopoReducer:
   ebpfTopoReducer:
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-reducer
-      tag: 6a96739d3-42b9dc9b0-261014T1243Z
+      tag: a77421fd6-c48010ac0-261028T0833Z@sha256:90dcd26bdad970bc0fc686fef2e902bc36c89b43e876e219fbb5ea901c1ea3a2
     resources:
       limits:
         cpu: "1"
@@ -96,7 +96,7 @@ eventrouterController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/eventrouter-controller
-      tag: 5d3ab6959-958513134-260907T1321Z
+      tag: e8fad13c6-e4a7d051b-261025T2037Z@sha256:5eb520240825dfca04a183c0f804bdf070383e67b8791c86a9b22cfe47e88baf
     resources:
       limits:
         cpu: 500m
@@ -130,7 +130,7 @@ otelCollector:
   otelCollector:
     image:
       repository: registry.ciroos.ai/netra/otelcollector
-      tag: 089158c47-af2615a3f-260904T1544Z
+      tag: 1aafdc191-e4a7d051b-261025T2037Z@sha256:3e29c6140a04f449a53c223d502d623c937aefdb640d3b038102a944750bb5d4
     resources:
       limits:
         cpu: 250m
@@ -156,7 +156,7 @@ sourceRepositoryWatcherController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/source-repository-watcher
-      tag: aaab7a9f2-af2615a3f-260904T1544Z
+      tag: 1424fd291-e4a7d051b-261025T2037Z@sha256:1f4f2795998db8aa84e72935c7e992939d7628368be45949910941ded5cd47c3
     resources:
       limits:
         cpu: 500m
@@ -188,7 +188,7 @@ vector:
       vectorLog: info
     image:
       repository: registry.ciroos.ai/netra/vector
-      tag: 52d091839-af2615a3f-260904T1544Z
+      tag: 81ef259eb-e4a7d051b-261025T2037Z@sha256:19763614a10515678e4b0b90abe9da2def7611243d0ee4a03c1782899e572121
     resources:
       limits:
         cpu: "2"
@@ -217,7 +217,7 @@ insightController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/insight
-      tag: e33478504-958513134-260907T1321Z
+      tag: 059694120-54c87bae7-261030T1511Z@sha256:5b4dd53f2ac16567bff1841a62d63875a4d0afdeaceef39127d81ea4be5b5cce
     resources:
       limits:
         cpu: 500m
@@ -245,7 +245,7 @@ nexusAgent:
   controller:
     image:
       repository: registry.ciroos.ai/netra/nexus-agent
-      tag: 8258bd1c2-af2615a3f-260904T1544Z
+      tag: e1fa33288-e4a7d051b-261025T2037Z@sha256:b7e436a77738af94bd312aaba00f72ff0b9179e30dad1cd2d623a141865b5c5b
     resources:
       limits:
         cpu: 500m
