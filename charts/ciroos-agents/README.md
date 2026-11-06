@@ -146,6 +146,22 @@ extraClusterRoleRules:
 
 `extraClusterRoleRules` is empty by default (no-op) and independent of `namespaceScoped` — it's always cluster-wide. When set, the chart creates a `beacon-extra-permission` ClusterRole with these rules and a `beacon-extra-binding` ClusterRoleBinding granting it to `beacon-sa` in the release namespace. This is the preferred way to extend beacon's permissions when `beacon.readAllResources: false` doesn't cover everything you need, without maintaining a separate manifest outside the chart.
 
+### Example: granting namespace-scoped RBAC through the chart
+
+`extraClusterRoleRules` is always cluster-wide. To grant beacon access to a resource in the release namespace only (for example Secrets in `ciroos-agent`), use `beacon.namespacedReadRules`:
+
+```yaml
+# values.yaml
+beacon:
+  readAllResources: false
+  namespacedReadRules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch"]
+```
+
+`beacon.namespacedReadRules` is empty by default (no-op) and is only honored when `beacon.readAllResources` is `false` — with `readAllResources: true`, beacon already has the read access. When set, the chart creates a `beacon-namespaced-role` Role and a `beacon-namespaced-rolebinding` RoleBinding granting these rules to `beacon-sa` in the release namespace. Please NOTE that it is independent of `namespaceScoped`.
+
 beacon also creates and deletes Pods by default (for diagnostics). To remove that permission as well:
 
 beacon:
