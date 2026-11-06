@@ -44,6 +44,9 @@ beacon:
   impersonate: false
   impersonatedServiceAccounts: []
   managePods: true
+  # Extra RBAC rules granted to beacon only within the release namespace (Role + RoleBinding).
+  # Empty by default. Only honored when readAllResources is false.
+  namespacedReadRules: []
   readAllResources: true
 beaconSa:
   serviceAccount:
