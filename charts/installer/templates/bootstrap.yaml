@@ -58,6 +58,10 @@ spec:
           value: {{ quote .Values.bootstrap.bootstrap.env.apiUrl }}
         - name: CLUSTER_NAME
           value: {{ quote .Values.bootstrap.bootstrap.env.clusterName }}
+        {{- with .Values.bootstrap.bootstrap.env.platform }}
+        - name: CLUSTER_PLATFORM
+          value: {{ quote . }}
+        {{- end }}
         image: {{ .Values.bootstrap.bootstrap.image.repository }}:{{ .Values.bootstrap.bootstrap.image.tag
           | default .Chart.AppVersion }}
         imagePullPolicy: {{ .Values.bootstrap.bootstrap.imagePullPolicy }}

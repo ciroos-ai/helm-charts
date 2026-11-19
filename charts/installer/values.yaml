@@ -16,6 +16,7 @@ bootstrap:
     env:
       apiUrl:
       clusterName:
+      platform:
     image:
       repository: registry.ciroos.ai/ciroos/bootstrap
       tag: 71513238f-02b3aa6c1-260402T1415Z
