@@ -59,6 +59,23 @@ rules:
     - get
     - patch
     - update
+# The ConfigMap where the alerts that were sent are kept so a restart does not send them
+# again. The eventrouter creates it itself (create cannot be limited by name) and it must
+# not be created by this chart: a helm upgrade would reset its data.
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  verbs:
+    - create
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  resourceNames:
+    - eventrouter-alert-state
+  verbs:
+    - update
 {{- else }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -113,6 +130,7 @@ rules:
   - batch
   resources:
   - cronjobs
+  - jobs
   verbs:
   - get
   - list
@@ -189,6 +207,23 @@ rules:
   - get
   - list
   - watch
+# The ConfigMap where the alerts that were sent are kept so a restart does not send them
+# again. The eventrouter creates it itself (create cannot be limited by name) and it must
+# not be created by this chart: a helm upgrade would reset its data.
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  resourceNames:
+  - eventrouter-alert-state
+  verbs:
+  - update
 - apiGroups:
   - ""
   resources:

@@ -7,7 +7,7 @@ metadata:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   matchRules:
-  - expression: resource.message.matches('(?i).*(fatal|critical|panic).*')
+  - expression: "resource.message.matches('(?is).*\\\\b(fatal|critical|panic)\\\\b.*')"
     name: fatal-critical-panic-messages
 {{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
@@ -18,6 +18,6 @@ metadata:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   matchRules:
-  - expression: resource.message.matches('(?i).*(fatal|critical|panic).*')
+  - expression: "resource.message.matches('(?is).*\\\\b(fatal|critical|panic)\\\\b.*')"
     name: fatal-critical-panic-messages
 {{- end }}

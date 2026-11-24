@@ -19,7 +19,7 @@ beacon:
   beacon:
     image:
       repository: registry.ciroos.ai/netra/beacon
-      tag: 9d047f758-0704fac0f-261027T1950Z@sha256:986feaf3ac94bc705ce637dbc0812224851e6a487adda18eb71ec40a747fbf95
+      tag: b4c2bec9c-3dd4036c7-261118T1437Z@sha256:374d1ba1ae7d1d2eb1814844c6fdea7c87e377e81daf0dfa7ecb8870409030ef
     resources:
       limits:
         cpu: 250m
@@ -56,7 +56,7 @@ ebpfTopoColl:
     useSysAdminCap: false
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-coll
-      tag: f2f68cbbb-c48010ac0-261028T0833Z@sha256:c876457a5a29bc8607e0c39873b6240957ff6ef1d0d47631be325413345251cf
+      tag: 802cfb950-3dd4036c7-261118T1437Z@sha256:877baa606ed064bbfa3867c5c2dc2d6825b695e2f0beb8659879e5e9aac3bb47
     resources:
       limits:
         cpu: 250m
@@ -71,7 +71,7 @@ ebpfTopoReducer:
   ebpfTopoReducer:
     image:
       repository: registry.ciroos.ai/netra/ebpf-topo-reducer
-      tag: a77421fd6-c48010ac0-261028T0833Z@sha256:90dcd26bdad970bc0fc686fef2e902bc36c89b43e876e219fbb5ea901c1ea3a2
+      tag: 5fe3cac24-3dd4036c7-261118T1437Z@sha256:63f1b688272645ca1d30df730cc5b2c041c4e9c575a49ef1e4a932ab41e472c0
     resources:
       limits:
         cpu: "1"
@@ -99,7 +99,7 @@ eventrouterController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/eventrouter-controller
-      tag: e8fad13c6-e4a7d051b-261025T2037Z@sha256:5eb520240825dfca04a183c0f804bdf070383e67b8791c86a9b22cfe47e88baf
+      tag: 5527499d9-3dd4036c7-261118T1437Z@sha256:15ad43dc2d9984c6de1c471721bd185ef931b9d7d9ef90fec4c66beb766fce0b
     resources:
       limits:
         cpu: 500m
@@ -133,7 +133,7 @@ otelCollector:
   otelCollector:
     image:
       repository: registry.ciroos.ai/netra/otelcollector
-      tag: 1aafdc191-e4a7d051b-261025T2037Z@sha256:3e29c6140a04f449a53c223d502d623c937aefdb640d3b038102a944750bb5d4
+      tag: 7b08ba816-3dd4036c7-261118T1437Z@sha256:56df2f3946cd0f93888e116fd0a9deb05d821041b29d407f1fe82e823edaf733
     resources:
       limits:
         cpu: 250m
@@ -159,7 +159,7 @@ sourceRepositoryWatcherController:
   controller:
     image:
       repository: registry.ciroos.ai/netra/source-repository-watcher
-      tag: 1424fd291-e4a7d051b-261025T2037Z@sha256:1f4f2795998db8aa84e72935c7e992939d7628368be45949910941ded5cd47c3
+      tag: 0a10e1d8d-3dd4036c7-261118T1437Z@sha256:793824fb01dc06848cf63ab3c2b0937f430883be7405077b77a307174edafb03
     resources:
       limits:
         cpu: 500m
@@ -191,7 +191,7 @@ vector:
       vectorLog: info
     image:
       repository: registry.ciroos.ai/netra/vector
-      tag: 81ef259eb-e4a7d051b-261025T2037Z@sha256:19763614a10515678e4b0b90abe9da2def7611243d0ee4a03c1782899e572121
+      tag: e87ec4a36-3dd4036c7-261118T1437Z@sha256:0e30fc55004aa7d34d424c7b156be899995c8c75761a39441884d194916fe18c
     resources:
       limits:
         cpu: "2"
@@ -217,10 +217,16 @@ vector:
       type: RuntimeDefault
 insightController:
   enabled: true
+  # Run the CSI, VolumeSnapshot and Rook-Ceph detectors. They need cluster-wide read access
+  # to storage.k8s.io (CSIDriver, CSINode, StorageClass, VolumeAttachment),
+  # snapshot.storage.k8s.io and ceph.rook.io, which the insight-controller ClusterRole grants
+  # only when this is true. When false the rules are omitted and the controller is started
+  # with --storage-detectors=false. Ignored when namespaceScoped is true.
+  storageDetectors: true
   controller:
     image:
       repository: registry.ciroos.ai/netra/insight
-      tag: 059694120-54c87bae7-261030T1511Z@sha256:5b4dd53f2ac16567bff1841a62d63875a4d0afdeaceef39127d81ea4be5b5cce
+      tag: 8196b9d39-3dd4036c7-261118T1437Z@sha256:cc2a3a5db44a5bfcf508bbe0e936c28713c06da95ca1638b02a3c571a35ec433
     resources:
       limits:
         cpu: 500m
@@ -248,7 +254,7 @@ nexusAgent:
   controller:
     image:
       repository: registry.ciroos.ai/netra/nexus-agent
-      tag: e1fa33288-e4a7d051b-261025T2037Z@sha256:b7e436a77738af94bd312aaba00f72ff0b9179e30dad1cd2d623a141865b5c5b
+      tag: a3c3a4be5-3dd4036c7-261118T1437Z@sha256:f4a034174cf7d7bc4f477bd5917b5e82fbab6479278986aab30b48af6d42b673
     resources:
       limits:
         cpu: 500m

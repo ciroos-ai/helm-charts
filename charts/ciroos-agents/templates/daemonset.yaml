@@ -16,6 +16,7 @@ spec:
         app: ebpf-topo-coll
       {{- include "ciroos-agents.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: ebpf-topo-coll
       hostPID: true
       containers:
       - env:

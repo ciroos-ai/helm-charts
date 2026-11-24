@@ -1,0 +1,29 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: volume-mount-failure-alert
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    # The kubelet could not attach or mount a volume for a Pod (missing or misconfigured
+    # PVC/ConfigMap/Secret, CSI driver down, multi-attach of a ReadWriteOnce volume), so the
+    # Pod is stuck in ContainerCreating.
+    - name: volume-mount-failed
+      expression: "resource.reason in ['FailedMount', 'FailedAttachVolume']"
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: volume-mount-failure-alert
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    # The kubelet could not attach or mount a volume for a Pod (missing or misconfigured
+    # PVC/ConfigMap/Secret, CSI driver down, multi-attach of a ReadWriteOnce volume), so the
+    # Pod is stuck in ContainerCreating.
+    - name: volume-mount-failed
+      expression: "resource.reason in ['FailedMount', 'FailedAttachVolume']"
+{{- end }}

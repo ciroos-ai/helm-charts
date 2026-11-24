@@ -204,11 +204,11 @@ Ciroos deploys the same agents as the `ciroos-agents` chart, with the same RBAC.
 | Agent | Cluster-wide access | Namespace-local access (`ciroos-agent`) |
 |---|---|---|
 | `beacon` | Pods get/list/watch (+ create/delete); **`*/*` get/list/watch by default** (curated under restricted RBAC) | Small Role: pods, pods/status, deployments get, events create |
-| `eventrouter-controller` | Read on events, core resources, workloads, CronJobs, cert-manager and Contour kinds; list/watch on CRDs; manages `lib.ciroos.ai` CRs | **`secrets` get** (one Role) |
-| `insight-controller` | Read on endpoints, namespaces, nodes, PVCs/PVs, pods, resource quotas, services, endpoint slices, ingresses, jobs, HPAs; events create/patch/update | **`secrets` get** (one Role) |
+| `eventrouter-controller` | Read on events, core resources, workloads, Jobs/CronJobs, cert-manager and Contour kinds; list/watch on CRDs; manages `lib.ciroos.ai` CRs | **`secrets` get** (one Role); `configmaps` get/list/watch, create, and update on the one ConfigMap (`eventrouter-alert-state`) where it remembers which alerts it already sent |
+| `insight-controller` | Read on endpoints, namespaces, nodes, PVCs/PVs, pods, resource quotas, services, endpoint slices, ingresses, jobs, HPAs, workloads (Deployments, ReplicaSets, StatefulSets, DaemonSets); read on CSI, VolumeSnapshot and Rook-Ceph kinds (omitted when `insightController.storageDetectors` is `false`); events create/patch/update | **`secrets` get** (one Role) |
 | `vector` | namespaces, nodes, pods, events: get/list/watch | none |
 | `otelcollector` (optional) | pods, namespaces, nodes, `nodes/stats`, workloads read | none |
-| `ebpf-topo-reducer` (optional) | pods, nodes, namespaces, services, workloads, jobs read | none |
+| `ebpf-topo-reducer` (optional) | pods, nodes, namespaces, services, workloads, jobs read; events create (to report failing connections) | `configmaps` get/create/patch (remembers working connections across restarts) |
 | `source-repository-watcher-controller` (optional) | **`secrets` get/list/watch**, Argo CD `applications`, Flux `helmreleases`/`kustomizations`/`gitrepositories`, CRDs, deployments | `secrets` create/delete/get/list/update/watch |
 
 Only three things can read Secrets beyond a single namespace, and all of them can be turned off:
