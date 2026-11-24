@@ -132,6 +132,7 @@ rules:
   - list
   - watch
 - apiGroups:
+  - ""
   - events.k8s.io
   resources:
   - events
@@ -163,6 +164,53 @@ rules:
   - get
   - list
   - watch
+# Stuck-terminating detector (workload controllers).
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - deployments
+  - replicasets
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+{{- if .Values.insightController.storageDetectors }}
+# CSI / VolumeSnapshot / Rook-Ceph detectors. Set insightController.storageDetectors to
+# false to omit these rules; the controller is then started with --storage-detectors=false.
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - csidrivers
+  - csinodes
+  - storageclasses
+  - volumeattachments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - snapshot.storage.k8s.io
+  resources:
+  - volumesnapshots
+  - volumesnapshotcontents
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ceph.rook.io
+  resources:
+  - cephblockpools
+  - cephclusters
+  - cephfilesystems
+  - cephobjectstores
+  verbs:
+  - get
+  - list
+  - watch
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

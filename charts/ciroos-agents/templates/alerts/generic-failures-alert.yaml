@@ -7,8 +7,7 @@ metadata:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   matchRules:
-  - expression: resource.reason == 'Failed' && !resource.message.matches('(?i).*(health
-      check|readiness|liveness).*')
+  - expression: "resource.reason == 'Failed' && !resource.message.matches('(?i).*(health check|readiness|liveness|ErrImagePull|ImagePullBackOff|failed to pull image|Error: (configmap|secret) |couldn.t find key).*')"
     name: failed-reason-excluding-health-checks
 {{- else }}
 apiVersion: lib.ciroos.ai/v1beta1
@@ -19,7 +18,6 @@ metadata:
   {{- include "ciroos-agents.labels" . | nindent 4 }}
 spec:
   matchRules:
-  - expression: resource.reason == 'Failed' && !resource.message.matches('(?i).*(health
-      check|readiness|liveness).*')
+  - expression: "resource.reason == 'Failed' && !resource.message.matches('(?i).*(health check|readiness|liveness|ErrImagePull|ImagePullBackOff|failed to pull image|Error: (configmap|secret) |couldn.t find key).*')"
     name: failed-reason-excluding-health-checks
 {{- end }}

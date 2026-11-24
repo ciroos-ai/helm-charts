@@ -37,6 +37,14 @@ rules:
   - get
   - list
   - watch
+# Raises ConnectionFailing Events on the Service (or workload) whose connections keep failing.
+# The Event goes in the namespace of that object.
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -91,6 +99,14 @@ rules:
   - get
   - list
   - watch
+# Raises ConnectionFailing Events on the Service (or workload) whose connections keep failing.
+# The Event goes in the namespace of that object.
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -107,3 +123,38 @@ subjects:
   name: 'ebpf-topo-reducer'
   namespace: '{{ .Release.Namespace }}'
 {{- end }}
+---
+# Keeps which connections were working across restarts, so that an outage that is already
+# going on when the reducer restarts is still detected.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ebpf-topo-reducer-baselines
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ebpf-topo-reducer-baselines
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ebpf-topo-reducer-baselines
+subjects:
+- kind: ServiceAccount
+  name: ebpf-topo-reducer
+  namespace: {{ .Release.Namespace }}

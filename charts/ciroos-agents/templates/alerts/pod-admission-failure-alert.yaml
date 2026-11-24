@@ -1,0 +1,31 @@
+{{- if .Values.namespaceScoped }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: NamespacedAlert
+metadata:
+  name: pod-admission-failure-alert
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    # A workload controller (ReplicaSet, StatefulSet, DaemonSet, Job) cannot create its Pods
+    # because the API server rejected them: ResourceQuota exceeded, LimitRange violation,
+    # Pod Security Admission violation, or a validating/mutating webhook denial. No Pod
+    # exists, so the Pod-level alerts never fire.
+    - name: pod-creation-rejected
+      expression: "resource.reason == 'FailedCreate' && resource.message.matches('(?i).*(exceeded quota|is forbidden|violates PodSecurity|admission webhook|denied the request).*')"
+{{- else }}
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: pod-admission-failure-alert
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    # A workload controller (ReplicaSet, StatefulSet, DaemonSet, Job) cannot create its Pods
+    # because the API server rejected them: ResourceQuota exceeded, LimitRange violation,
+    # Pod Security Admission violation, or a validating/mutating webhook denial. No Pod
+    # exists, so the Pod-level alerts never fire.
+    - name: pod-creation-rejected
+      expression: "resource.reason == 'FailedCreate' && resource.message.matches('(?i).*(exceeded quota|is forbidden|violates PodSecurity|admission webhook|denied the request).*')"
+{{- end }}

@@ -1,0 +1,17 @@
+{{- if not .Values.namespaceScoped }}
+# Connections from a workload that used to work have all been failing for minutes (service
+# without endpoints, wrong port, blocked by a NetworkPolicy, unreachable node or external
+# dependency). Raised by ebpf-topo-reducer, on the Service when the destination is one,
+# otherwise on the failing workload. These cases do not show in object status, so the
+# Sveltos health checks cannot see them.
+apiVersion: lib.ciroos.ai/v1beta1
+kind: Alert
+metadata:
+  name: ebpf-connection-failing
+  labels:
+  {{- include "ciroos-agents.labels" . | nindent 4 }}
+spec:
+  matchRules:
+    - name: ebpf-connection-failing
+      expression: "resource.reason == 'ConnectionFailing'"
+{{- end }}

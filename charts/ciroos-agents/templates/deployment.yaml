@@ -125,6 +125,10 @@ spec:
           value: /etc/certs/tls.key
         - name: EBPF_TOPOLOGY_REDUCER_TLS_CA_PATH
           value: /etc/certs/ca.crt
+        # Raise ConnectionFailing Events for connections that keep failing. They are matched
+        # by the ebpf-connection-failing Alert.
+        - name: EBPF_TOPOLOGY_REDUCER_FAILURE_EVENTS_ENABLED
+          value: "true"
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
         image: {{ .Values.ebpfTopoReducer.ebpfTopoReducer.image.repository }}:{{ .Values.ebpfTopoReducer.ebpfTopoReducer.image.tag
@@ -455,6 +459,9 @@ spec:
 {{- end }}
         - --cluster-id={{ .Values.clusterName }}
         - --vector-url=http://vector-service:8999/k8s/insights
+{{- if not .Values.insightController.storageDetectors }}
+        - --storage-detectors=false
+{{- end }}
         command:
         - /manager
         env:
